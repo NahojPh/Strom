@@ -3,14 +3,6 @@
 version = 3
 
 [[package]]
-name = "Strom"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy_rapier3d",
-]
-
-[[package]]
 name = "ab_glyph"
 version = "0.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -562,16 +554,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ec44f7655039546bc5d34d98de877083473f3e9b2b81d560c528d6d74d3eff4"
 
 [[package]]
-name = "bevy_rapier3d"
+name = "bevy_rapier2d"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77057d7ecde9cff3ad7f36faa362dd540c25a6316e160550e49915f3a765fc53"
+checksum = "459c99492ef202f535305fc4e279240c2d47c3645220100c56ec71e735fc03f3"
 dependencies = [
  "bevy",
  "bitflags",
  "log",
  "nalgebra",
- "rapier3d",
+ "rapier2d",
 ]
 
 [[package]]
@@ -2419,10 +2411,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "parry3d"
+name = "parry2d"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2852a4cf8f65177e6f3755a725fdc0a433cca4fa6a97a07ae8c8abd7a4b52ea"
+checksum = "a2342b33d77a0393879b1b85eac2a30cc4b36d10b30e111f55a5e9280cf5eb87"
 dependencies = [
  "approx",
  "arrayvec",
@@ -2547,10 +2539,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "63e935c45e09cc6dcf00d2f0b2d630a58f4095320223d47fc68918722f0538b6"
 
 [[package]]
-name = "rapier3d"
+name = "rapier2d"
 version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33c3a4adb69feadac44d74be058aaaec4502f9c193ec20c0e629b07387ee61a2"
+checksum = "dcd37fc7fad61534f35ce9cb198283cd7055c08cdc4a1565d0974a1fe74d5e59"
 dependencies = [
  "approx",
  "arrayvec",
@@ -2561,7 +2553,7 @@ dependencies = [
  "nalgebra",
  "num-derive",
  "num-traits",
- "parry3d",
+ "parry2d",
  "rustc-hash",
  "simba",
 ]
@@ -2907,6 +2899,14 @@ name = "stdweb-internal-runtime"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "213701ba3370744dcd1a12960caa4843b3d68b4d1c0a5d575e0d65b2ee9d16c0"
+
+[[package]]
+name = "strom"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy_rapier2d",
+]
 
 [[package]]
 name = "strsim"
