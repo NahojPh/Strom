@@ -36,7 +36,7 @@ fn setup(
     })
     .insert(Player {
         speed: 500.0,
-        max_speed: 200.0,
+        max_speed: 400.0,
         
     })
     .insert(RigidBody::Dynamic)
@@ -46,7 +46,7 @@ fn setup(
         angvel: 0.0,
     })
     .insert(Damping {
-        linear_damping: 0.9,
+        linear_damping: 1.0,
         angular_damping: 0.0,
     })
     ;
@@ -68,8 +68,8 @@ fn handle_keyboard_input(
                     }
                 },
                 KeyCode::A => {
-                    if velocity.linvel.x < player.max_speed {
-                        velocity.linvel.x += player.speed * time.delta_seconds();
+                    if velocity.linvel.x.abs() < player.max_speed {
+                        velocity.linvel.x -= player.speed * time.delta_seconds();
                     }
                     
                 },
@@ -80,8 +80,8 @@ fn handle_keyboard_input(
                     
                 },
                 KeyCode::D => {
-                    if velocity.linvel.x.abs() < player.max_speed {
-                        velocity.linvel.x -= player.speed * time.delta_seconds();
+                    if velocity.linvel.x < player.max_speed {
+                        velocity.linvel.x += player.speed * time.delta_seconds();
                     }
                     
                     
