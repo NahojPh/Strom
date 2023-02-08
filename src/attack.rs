@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{RapierContext, QueryFilter, Group, CollisionGroups};
-use crate::{enemy::Enemy, PLAYER_GROUP, ENEMY_GROUP};
+use crate::{enemy::Enemy};//, PLAYER_GROUP, ENEMY_GROUP};
 
 pub struct AttackPlugin;
 
@@ -94,7 +94,7 @@ impl Attack {
 		
 	) {
 		if let Some((entity, toi)) = rapier_context.cast_ray(
-			starting_point, direction, toi, false, QueryFilter::new().groups(CollisionGroups::new(ENEMY_GROUP, PLAYER_GROUP))
+			starting_point, direction, toi, false, QueryFilter::predicate
 		) {
 			let hit_point = starting_point + direction * toi;
 			println!("Hit entity! {:?} at point {:?}", entity, hit_point);

@@ -6,9 +6,6 @@ use bevy_rapier2d::prelude::*;
 use bevy::{prelude::*, window::CursorGrabMode};
 use bevy_rapier2d::geometry::Group;
 
-static PLAYER_GROUP: Group = Group::GROUP_2;
-static ENEMY_GROUP: Group = Group::GROUP_2;
-
 
 fn main() {
     App::new()
