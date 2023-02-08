@@ -12,6 +12,7 @@ pub struct Player {
     pub attack_speed: f32,
     pub bullet_amount: usize,
     pub effects: Vec<Effect>,
+    pub level: usize,
 }
 
 pub enum Effect {
@@ -56,6 +57,7 @@ fn setup(
         attack_speed: 1.0,
         bullet_amount: 1,
         effects: Vec::new(),
+        level: 1,
     })
     .insert(RigidBody::Dynamic)
     .insert(Collider::ball(5.0))

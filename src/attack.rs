@@ -15,6 +15,10 @@ pub struct Die;
 #[derive(Component)]
 pub struct TakeDamage(usize);
 
+pub enum Attack {
+	Laser,
+}
+
 impl Plugin for AttackPlugin {
     fn build(&self, app: &mut App) {
     	app
@@ -28,7 +32,7 @@ impl Plugin for AttackPlugin {
 impl AttackPlugin {
 	fn take_damage(
 		mut commands: Commands,
-		damage_query: Query<(&mut Health, &TakeDamage, Entity)>,
+		mut damage_query: Query<(&mut Health, &TakeDamage, Entity)>,
 	) {
 		for (mut health, damage_taken, entity) in damage_query.iter_mut() {
 			commands.entity(entity).remove::<TakeDamage>();
@@ -41,6 +45,12 @@ impl AttackPlugin {
 		}
 		
 	}	
+
+	fn die(
+		
+	) {
+		
+	}
 }
 
 
