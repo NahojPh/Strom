@@ -1,4 +1,4 @@
 # Strom
 Stommin
 
-Ett spel där man växer växter :
+A game about fixting for galactic power, but way more disappointing.
