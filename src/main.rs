@@ -1,4 +1,5 @@
 mod player;
+mod attack;
 
 use bevy_rapier2d::prelude::*;
 use bevy::{prelude::*, window::CursorGrabMode};

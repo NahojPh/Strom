@@ -8,7 +8,22 @@ pub struct PlayerPlugin;
 pub struct Player {
     pub speed: f32,
     pub max_speed: f32,
+    pub base_damage: f32,    
+    pub attack_speed: f32,
+    pub bullet_amount: usize,
+    pub effects: Vec<Effect>,
 }
+
+pub enum Effect {
+    Slowness(f32), //f32 is multiplier
+    Weakness(f32), //f32 is multiplier
+    Strength(f32), //f32 is multiplier
+    
+}
+
+
+
+
 // Consider using this instead of making your own camera controller
 // https://github.com/sburris0/bevy_flycam
 
@@ -37,7 +52,10 @@ fn setup(
     .insert(Player {
         speed: 500.0,
         max_speed: 400.0,
-        
+        base_damage: 500.0,
+        attack_speed: 1.0,
+        bullet_amount: 1,
+        effects: Vec::new(),
     })
     .insert(RigidBody::Dynamic)
     .insert(Collider::ball(5.0))
