@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-struct SpriteAnimationPlugin;
+pub struct SpriteAnimationPlugin;
 
 impl Plugin for SpriteAnimationPlugin {
     fn build(&self, app: &mut App) {
@@ -47,12 +47,12 @@ impl SpriteAnimationPlugin {
 
 
 
-#[derive(Component)]
-struct AnimationIndices {
-    first: usize,
-    last: usize,
+#[derive(Component, Clone, Copy)]
+pub struct AnimationIndices {
+    pub first: usize,
+    pub last: usize,
 }
 
 #[derive(Component, Deref, DerefMut)]
-struct AnimationTimer(Timer);
+pub struct AnimationTimer(pub Timer);
 

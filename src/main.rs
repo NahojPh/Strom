@@ -34,6 +34,7 @@ fn main() {
         .add_plugin(player::PlayerPlugin)
         .add_plugin(attack::AttackPlugin)
         .add_plugin(enemy::EnemyPlugin)
+        .add_plugin(sprite_animation::SpriteAnimationPlugin)
         .run();
 }
 

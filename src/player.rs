@@ -110,7 +110,6 @@ fn handle_keyboard_input(
                     }
                 },
                 KeyCode::F => {
-                    dbg!("Shooting!");
                     Attack::shot_laser(
                         &mut commands,
                         &rapier_context,

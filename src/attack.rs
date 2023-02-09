@@ -1,12 +1,15 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{RapierContext, QueryFilter, Group, CollisionGroups};
-use crate::{enemy::Enemy};//, PLAYER_GROUP, ENEMY_GROUP};
+use crate::sprite_animation::*;
 
 pub struct AttackPlugin;
 
 impl Plugin for AttackPlugin {
     fn build(&self, app: &mut App) {
     	app
+			.add_startup_system(AttackPlugin::setup)
 			.add_system(AttackPlugin::take_damage)
 			.add_system(Die::kill_entity)
 		;
@@ -23,25 +26,29 @@ pub struct Health {
 #[derive(Component)]
 pub struct Die;
 
-struct DeathSpriteAnimation(Handle<Image>);
+#[derive(Resource)]
+struct DeathSpriteAnimation {
+	texture_atlas_handle: Handle<TextureAtlas>,
+    animation_indices: AnimationIndices,
+}
 
 
 impl Die {
 	fn kill_entity(
 		mut commands: Commands,
 		mut query: Query<(&Transform, Entity), With<Die>>,
-		asset_server: Res<AssetServer>,
+		death_sprite_animation: Res<DeathSpriteAnimation>,
 	) {
 		for (transform, entity) in query.iter_mut() {
 			println!("Killed entity: {:?}", entity);
-			// commands.spawn_bundle(SpriteSheetBundle {
-			//     sprite: todo!(),
-			//     texture_atlas: todo!(),
-			//     transform: todo!(),
-			//     global_transform: todo!(),
-			//     visibility: todo!(),
-			//     computed_visibility: todo!(),
-			// });
+			commands.spawn(SpriteSheetBundle {
+			    sprite: TextureAtlasSprite::new(death_sprite_animation.animation_indices.first),
+			    texture_atlas: death_sprite_animation.texture_atlas_handle.clone(),
+			    transform: Transform::from_translation(Vec3::ZERO),
+				..Default::default()
+			})
+			.insert(AnimationIndices::from(death_sprite_animation.animation_indices.clone()))
+			.insert(AnimationTimer(Timer::new(Duration::from_millis(200), TimerMode::Repeating)));
 			commands.entity(entity).remove::<Die>();
 			commands.entity(entity).despawn_recursive();
 			
@@ -49,7 +56,6 @@ impl Die {
 	}
 }
 
-struct DeathAnimation;
 
 
 
@@ -64,6 +70,25 @@ pub struct TakeDamage(usize); //Maybe make sparse
 
 
 impl AttackPlugin {
+	fn setup(
+		mut commands: Commands,
+		asset_server: Res<AssetServer>,
+		mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+	) {
+	    let texture_handle = asset_server.load("effect/16_sunburn_spritesheet.png");
+	    let texture_atlas =
+	        TextureAtlas::from_grid(texture_handle, Vec2::new(100.0, 100.0), 8, 8, None, None);
+	    let texture_atlas_handle = texture_atlases.add(texture_atlas);
+	    // Use only the subset of sprites in the sheet that make up the run animation
+	    let animation_indices = AnimationIndices { first: 1, last: 63 };
+
+		commands.insert_resource(DeathSpriteAnimation {
+		    texture_atlas_handle,
+		    animation_indices,
+		});
+	}
+
+	
 	fn take_damage(
 		mut commands: Commands,
 		mut damage_query: Query<(&mut Health, &TakeDamage, Entity), Without<Die>>,
@@ -106,7 +131,7 @@ impl Attack {
 			Vec2::new(starting_point.x, starting_point.y + 10.0), Vec2::new(0.0, 1.0), toi, false, QueryFilter::new()
 		) {
 			let hit_point = starting_point + direction * toi;
-			println!("Hit entity! {:?} at point {:?}", entity, hit_point);
+			// println!("Hit entity! {:?} at point {:?}", entity, hit_point);
 			if let Some(mut ec) = commands.get_entity(entity) {
 			    ec.insert(TakeDamage(20));
 			}
