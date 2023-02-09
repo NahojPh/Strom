@@ -87,6 +87,7 @@ impl Attack {
 		commands: &mut Commands,
 		// asset_server: Res<AssetServer>,
 		rapier_context: &Res<RapierContext>,
+		entity: Entity,
 		starting_point: Vec2,
 		direction: Vec2,
 		toi: f32,
@@ -94,7 +95,7 @@ impl Attack {
 		
 	) {
 		if let Some((entity, toi)) = rapier_context.cast_ray(
-			starting_point, direction, toi, false, QueryFilter::predicate
+			starting_point, direction, toi, false, QueryFilter::new().exclude_collider(entity)
 		) {
 			let hit_point = starting_point + direction * toi;
 			println!("Hit entity! {:?} at point {:?}", entity, hit_point);

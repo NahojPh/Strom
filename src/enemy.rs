@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 use crate::attack::Health;
 
@@ -11,7 +12,7 @@ pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app
-			.add_system(EnemyPlugin::setup)
+			.add_startup_system(EnemyPlugin::setup)
 		;
     }
 }
@@ -33,6 +34,8 @@ impl EnemyPlugin {
 	    health: 100,
 	    max_health: 100,
 	})
+    .insert(RigidBody::Dynamic)
+	.insert(Collider::ball(5.0))
 	.insert(Enemy);
 		
 	}

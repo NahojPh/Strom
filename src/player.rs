@@ -79,11 +79,11 @@ fn setup(
 fn handle_keyboard_input(
     mut commands: Commands,
     input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Velocity, &Player, &Transform)>,
+    mut query: Query<(&mut Velocity, &Player, &Transform, Entity)>,
     time: Res<Time>,
     rapier_context: Res<RapierContext>,
 ) {
-    for (mut velocity, player, transform) in query.iter_mut() {
+    for (mut velocity, player, transform, entity) in query.iter_mut() {
         for key in input.get_pressed() {
             match key {
                 KeyCode::W => {
@@ -113,6 +113,7 @@ fn handle_keyboard_input(
                     Attack::shot_laser(
                         &mut commands,
                         &rapier_context,
+                        entity,
                         transform.translation.truncate(),
                         transform.rotation.to_axis_angle().0.truncate(),
                         20.0

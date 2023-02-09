@@ -2,9 +2,18 @@ mod player;
 mod attack;
 mod enemy;
 
+
+use iyes_loopless::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy::{prelude::*, window::CursorGrabMode};
-use bevy_rapier2d::geometry::Group;
+
+
+enum AppState {
+    MainMenu,
+    InGame,
+    Paused,
+    Shopping,
+}
 
 
 fn main() {
