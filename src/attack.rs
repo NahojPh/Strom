@@ -87,15 +87,16 @@ impl Attack {
 		commands: &mut Commands,
 		// asset_server: Res<AssetServer>,
 		rapier_context: &Res<RapierContext>,
-		entity: Entity,
+		_entity: Entity,
 		starting_point: Vec2,
 		direction: Vec2,
-		toi: f32,
+		// toi: f32,
 		// group: Group,
 		
 	) {
+		let toi = f32::MAX;
 		if let Some((entity, toi)) = rapier_context.cast_ray(
-			starting_point, direction, toi, false, QueryFilter::new().exclude_collider(entity)
+			Vec2::new(starting_point.x, starting_point.y + 10.0), Vec2::new(0.0, 1.0), toi, false, QueryFilter::new()
 		) {
 			let hit_point = starting_point + direction * toi;
 			println!("Hit entity! {:?} at point {:?}", entity, hit_point);

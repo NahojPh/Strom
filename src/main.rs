@@ -25,6 +25,7 @@ fn main() {
             ..Default::default()
         })
         .add_plugin(RapierDebugRenderPlugin {
+            mode: DebugRenderMode::all(),
             enabled: true,
             ..Default::default()
         })

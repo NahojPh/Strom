@@ -63,13 +63,14 @@ fn setup(
     })
     .insert(RigidBody::Dynamic)
     .insert(Collider::ball(5.0))
+	.insert(LockedAxes::ROTATION_LOCKED)
     .insert(Velocity {
         linvel: Vec2::ZERO,
         angvel: 0.0,
     })
     .insert(Damping {
-        linear_damping: 1.0,
-        angular_damping: 0.0,
+        linear_damping: 1.5,
+        angular_damping: 20.0,
     })
     ;
     
@@ -116,7 +117,6 @@ fn handle_keyboard_input(
                         entity,
                         transform.translation.truncate(),
                         transform.rotation.to_axis_angle().0.truncate(),
-                        20.0
                     );  
                 },
                 

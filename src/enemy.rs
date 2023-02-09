@@ -35,7 +35,8 @@ impl EnemyPlugin {
 	    max_health: 100,
 	})
     .insert(RigidBody::Dynamic)
-	.insert(Collider::ball(5.0))
+	.insert(LockedAxes::ROTATION_LOCKED)
+	.insert(Collider::ball(50.0))
 	.insert(Enemy);
 		
 	}
