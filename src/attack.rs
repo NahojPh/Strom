@@ -23,20 +23,33 @@ pub struct Health {
 #[derive(Component)]
 pub struct Die;
 
+struct DeathSpriteAnimation(Handle<Image>);
+
 
 impl Die {
 	fn kill_entity(
 		mut commands: Commands,
-		mut query: Query<Entity, With<Die>>,
+		mut query: Query<(&Transform, Entity), With<Die>>,
+		asset_server: Res<AssetServer>,
 	) {
-		for mut entity in query.iter_mut() {
+		for (transform, entity) in query.iter_mut() {
 			println!("Killed entity: {:?}", entity);
-			// commands.entity(entity).remove::<Die>();
+			// commands.spawn_bundle(SpriteSheetBundle {
+			//     sprite: todo!(),
+			//     texture_atlas: todo!(),
+			//     transform: todo!(),
+			//     global_transform: todo!(),
+			//     visibility: todo!(),
+			//     computed_visibility: todo!(),
+			// });
+			commands.entity(entity).remove::<Die>();
 			commands.entity(entity).despawn_recursive();
 			
 		}
 	}
 }
+
+struct DeathAnimation;
 
 
 
@@ -67,12 +80,6 @@ impl AttackPlugin {
 		}
 		
 	}	
-
-	fn die(
-		
-	) {
-		
-	}
 }
 
 
@@ -100,7 +107,9 @@ impl Attack {
 		) {
 			let hit_point = starting_point + direction * toi;
 			println!("Hit entity! {:?} at point {:?}", entity, hit_point);
-			commands.entity(entity).insert(TakeDamage(20));
+			if let Some(mut ec) = commands.get_entity(entity) {
+			    ec.insert(TakeDamage(20));
+			}
 			
 		}
 		else {
