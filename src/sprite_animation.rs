@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use iyes_loopless::prelude*;
 
 pub struct SpriteAnimationPlugin;
 
@@ -22,17 +23,20 @@ impl SpriteAnimationPlugin {
     
     
     fn animate_sprite(
+        mut commands: Commands,
         time: Res<Time>,
         mut query: Query<(
             &AnimationIndices,
             &mut AnimationTimer,
             &mut TextureAtlasSprite,
+            Entity,
         )>,
     ) {
-        for (indices, mut timer, mut sprite) in &mut query {
+        for (indices, mut timer, mut sprite, entity) in &mut query {
             timer.tick(time.delta());
-            if timer.just_finished() {
+            if timer.finished() {
                 sprite.index = if sprite.index == indices.last {
+                    commands.entity(entity).despawn_recursive();
                     indices.first
                 } else {
                     sprite.index + 1

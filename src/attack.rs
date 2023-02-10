@@ -44,11 +44,15 @@ impl Die {
 			commands.spawn(SpriteSheetBundle {
 			    sprite: TextureAtlasSprite::new(death_sprite_animation.animation_indices.first),
 			    texture_atlas: death_sprite_animation.texture_atlas_handle.clone(),
-			    transform: Transform::from_translation(Vec3::ZERO),
+			    transform: Transform {
+			        translation: transform.translation,
+			        rotation: transform.rotation,
+			        scale: Vec3::splat(5.0),
+			    },
 				..Default::default()
 			})
 			.insert(AnimationIndices::from(death_sprite_animation.animation_indices.clone()))
-			.insert(AnimationTimer(Timer::new(Duration::from_millis(200), TimerMode::Repeating)));
+			.insert(AnimationTimer(Timer::new(Duration::from_millis(10), TimerMode::Repeating)));
 			commands.entity(entity).remove::<Die>();
 			commands.entity(entity).despawn_recursive();
 			
@@ -75,7 +79,7 @@ impl AttackPlugin {
 		asset_server: Res<AssetServer>,
 		mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 	) {
-	    let texture_handle = asset_server.load("effect/16_sunburn_spritesheet.png");
+	    let texture_handle = asset_server.load("effects/16_sunburn_spritesheet.png");
 	    let texture_atlas =
 	        TextureAtlas::from_grid(texture_handle, Vec2::new(100.0, 100.0), 8, 8, None, None);
 	    let texture_atlas_handle = texture_atlases.add(texture_atlas);
@@ -132,8 +136,11 @@ impl Attack {
 		) {
 			let hit_point = starting_point + direction * toi;
 			// println!("Hit entity! {:?} at point {:?}", entity, hit_point);
-			if let Some(mut ec) = commands.get_entity(entity) {
-			    ec.insert(TakeDamage(20));
+			if let Some(mut _ec) = commands.get_entity(entity) {
+				if let Some(mut ec) = commands.get_entity(entity) {
+				    ec.insert(TakeDamage(20));
+				}
+				
 			}
 			
 		}

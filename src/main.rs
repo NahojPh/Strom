@@ -8,7 +8,7 @@ use iyes_loopless::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy::{prelude::*, window::CursorGrabMode};
 
-
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum AppState {
     MainMenu,
     InGame,
@@ -31,6 +31,7 @@ fn main() {
             ..Default::default()
         })
         .add_startup_system(setup)
+        .add_loopless_state(AppState::InGame)
         .add_plugin(player::PlayerPlugin)
         .add_plugin(attack::AttackPlugin)
         .add_plugin(enemy::EnemyPlugin)
