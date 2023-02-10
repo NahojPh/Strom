@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use iyes_loopless::prelude*;
+use iyes_loopless::prelude::*;
 
 pub struct SpriteAnimationPlugin;
 
@@ -51,7 +51,7 @@ impl SpriteAnimationPlugin {
 
 
 
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Clone, Copy, Resource)]
 pub struct AnimationIndices {
     pub first: usize,
     pub last: usize,

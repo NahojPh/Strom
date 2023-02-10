@@ -11,7 +11,6 @@ impl Plugin for AttackPlugin {
     	app
 			.add_startup_system(AttackPlugin::setup)
 			.add_system(AttackPlugin::take_damage)
-			.add_system(Die::kill_entity)
 		;
     }
 }
@@ -33,32 +32,30 @@ struct DeathSpriteAnimation {
 }
 
 
-impl Die {
-	fn kill_entity(
-		mut commands: Commands,
-		mut query: Query<(&Transform, Entity), With<Die>>,
-		death_sprite_animation: Res<DeathSpriteAnimation>,
-	) {
-		for (transform, entity) in query.iter_mut() {
-			println!("Killed entity: {:?}", entity);
-			commands.spawn(SpriteSheetBundle {
-			    sprite: TextureAtlasSprite::new(death_sprite_animation.animation_indices.first),
-			    texture_atlas: death_sprite_animation.texture_atlas_handle.clone(),
-			    transform: Transform {
-			        translation: transform.translation,
-			        rotation: transform.rotation,
-			        scale: Vec3::splat(5.0),
-			    },
-				..Default::default()
-			})
-			.insert(AnimationIndices::from(death_sprite_animation.animation_indices.clone()))
-			.insert(AnimationTimer(Timer::new(Duration::from_millis(10), TimerMode::Repeating)));
-			commands.entity(entity).remove::<Die>();
-			commands.entity(entity).despawn_recursive();
+// impl Die {
+// 	fn kill_entity(
+// 		mut commands: Commands,
+// 		mut query: Query<(&Transform, Entity), With<Die>>,
+// 		death_sprite_animation: Res<DeathSpriteAnimation>,
+// 	) {
+// 		for (transform, entity) in query.iter_mut() {
+// 			println!("Killed entity: {:?}", entity);
+// 			commands.spawn(SpriteSheetBundle {
+// 			    sprite: TextureAtlasSprite::new(death_sprite_animation.animation_indices.first),
+// 			    texture_atlas: death_sprite_animation.texture_atlas_handle.clone(),
+// 			    transform: Transform {
+// 			        translation: transform.translation,
+// 			        rotation: transform.rotation,
+// 			        scale: Vec3::splat(5.0),
+// 			    },
+// 				..Default::default()
+// 			})
+// 			.insert(AnimationIndices::from(death_sprite_animation.animation_indices.clone()))
+// 			.insert(AnimationTimer(Timer::new(Duration::from_millis(10), TimerMode::Repeating)));
 			
-		}
-	}
-}
+// 		}
+// 	}
+// }
 
 
 
@@ -91,17 +88,30 @@ impl AttackPlugin {
 		    animation_indices,
 		});
 	}
-
 	
 	fn take_damage(
 		mut commands: Commands,
-		mut damage_query: Query<(&mut Health, &TakeDamage, Entity), Without<Die>>,
+		mut damage_query: Query<(&mut Health, &TakeDamage, &Transform, Entity)>,
+		death_sprite_animation: Res<DeathSpriteAnimation>,
 	) {
-		for (mut health, damage_taken, entity) in damage_query.iter_mut() {
+		for (mut health, damage_taken, transform, entity) in damage_query.iter_mut() {
 			commands.entity(entity).remove::<TakeDamage>();
 			dbg!("Taking damage.. or am i?");
 			if damage_taken.0 > health.health {
-				commands.entity(entity).insert(Die);
+				commands.spawn(SpriteSheetBundle {
+				    sprite: TextureAtlasSprite::new(death_sprite_animation.animation_indices.first),
+				    texture_atlas: death_sprite_animation.texture_atlas_handle.clone(),
+				    transform: Transform {
+				        translation: transform.translation,
+				        rotation: transform.rotation,
+				        scale: Vec3::splat(3.0),
+				    },
+					..Default::default()
+				})
+				.insert(AnimationIndices::from(death_sprite_animation.animation_indices.clone()))
+				.insert(AnimationTimer(Timer::new(Duration::from_millis(5), TimerMode::Repeating)));
+				
+				commands.entity(entity).despawn_recursive();
 			}
 			else {
 				health.health -= damage_taken.0;
