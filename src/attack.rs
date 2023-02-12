@@ -10,7 +10,6 @@ impl Plugin for AttackPlugin {
     fn build(&self, app: &mut App) {
     	app
 			.add_startup_system(AttackPlugin::setup)
-			.add_system(AttackPlugin::take_damage)
 		;
     }
 }
@@ -26,7 +25,7 @@ pub struct Health {
 pub struct Die;
 
 #[derive(Resource)]
-struct DeathSpriteAnimation {
+pub struct DeathSpriteAnimation {
 	texture_atlas_handle: Handle<TextureAtlas>,
     animation_indices: AnimationIndices,
 }
@@ -89,38 +88,39 @@ impl AttackPlugin {
 		});
 	}
 	
-	fn take_damage(
-		mut commands: Commands,
-		mut damage_query: Query<(&mut Health, &TakeDamage, &Transform, Entity)>,
-		death_sprite_animation: Res<DeathSpriteAnimation>,
-	) {
-		for (mut health, damage_taken, transform, entity) in damage_query.iter_mut() {
-			commands.entity(entity).remove::<TakeDamage>();
-			dbg!("Taking damage.. or am i?");
-			if damage_taken.0 > health.health {
-				commands.spawn(SpriteSheetBundle {
-				    sprite: TextureAtlasSprite::new(death_sprite_animation.animation_indices.first),
-				    texture_atlas: death_sprite_animation.texture_atlas_handle.clone(),
-				    transform: Transform {
-				        translation: transform.translation,
-				        rotation: transform.rotation,
-				        scale: Vec3::splat(3.0),
-				    },
-					..Default::default()
-				})
-				.insert(AnimationIndices::from(death_sprite_animation.animation_indices.clone()))
-				.insert(AnimationTimer(Timer::new(Duration::from_millis(5), TimerMode::Repeating)));
-				
-				commands.entity(entity).despawn_recursive();
-			}
-			else {
-				health.health -= damage_taken.0;
-			}
-		}
 		
-	}	
 }
 
+
+fn take_damage(
+	commands: &mut Commands,
+	entity: &mut Entity,
+	health: &mut Health,
+	damage_taken: usize,
+	translation: Vec2,
+	death_sprite_animation: &Res<DeathSpriteAnimation>,
+) {
+	dbg!("Taking damage.. or am i?");
+	if damage_taken > health.health {
+		commands.spawn(SpriteSheetBundle {
+		    sprite: TextureAtlasSprite::new(death_sprite_animation.animation_indices.first),
+		    texture_atlas: death_sprite_animation.texture_atlas_handle.clone(),
+		    transform: Transform {
+		        translation: translation.extend(1.0),
+		        scale: Vec3::splat(3.0),
+				..Default::default()
+		    },
+			..Default::default()
+		})
+		.insert(AnimationIndices::from(death_sprite_animation.animation_indices.clone()))
+		.insert(AnimationTimer(Timer::new(Duration::from_millis(5), TimerMode::Repeating)));
+
+		commands.entity(*entity).despawn_recursive();
+	}
+	else {
+		health.health -= damage_taken;
+	}
+}
 
 
 pub struct Attack;
@@ -133,24 +133,29 @@ impl Attack {
 		commands: &mut Commands,
 		// asset_server: Res<AssetServer>,
 		rapier_context: &Res<RapierContext>,
-		_entity: Entity,
 		starting_point: Vec2,
 		direction: Vec2,
+		death_sprite_animation: &Res<DeathSpriteAnimation>,
+		health: &mut Health,
 		// toi: f32,
 		// group: Group,
 		
 	) {
 		let toi = f32::MAX;
-		if let Some((entity, toi)) = rapier_context.cast_ray(
+		if let Some((mut entity, toi)) = rapier_context.cast_ray(
 			Vec2::new(starting_point.x, starting_point.y + 10.0), Vec2::new(0.0, 1.0), toi, false, QueryFilter::new()
 		) {
 			let hit_point = starting_point + direction * toi;
 			// println!("Hit entity! {:?} at point {:?}", entity, hit_point);
 			if let Some(mut _ec) = commands.get_entity(entity) {
-				if let Some(mut ec) = commands.get_entity(entity) {
-				    ec.insert(TakeDamage(20));
-				}
-				
+			    take_damage(
+					commands,	
+					&mut entity,
+					health,
+					20,
+					hit_point,
+					death_sprite_animation,
+				);
 			}
 			
 		}

@@ -1,7 +1,8 @@
 use bevy::{prelude::*, input::mouse::MouseMotion};
 use bevy_rapier2d::prelude::*;
 
-use crate::attack::Attack;
+
+use crate::attack::{Attack, DeathSpriteAnimation, Health};
 
 
 pub struct PlayerPlugin;
@@ -72,6 +73,10 @@ fn setup(
         linear_damping: 1.5,
         angular_damping: 20.0,
     })
+    .insert(Health {
+        health: 100,
+        max_health: 100,
+    })
     ;
     
 }
@@ -80,12 +85,18 @@ fn setup(
 fn handle_keyboard_input(
     mut commands: Commands,
     input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Velocity, &Player, &Transform, Entity)>,
+    mut query: Query<(&mut Velocity, &Player, &Transform, &mut Health)>,
     time: Res<Time>,
     rapier_context: Res<RapierContext>,
+	death_sprite_animation: Res<DeathSpriteAnimation>,
+    
+    
 ) {
-    for (mut velocity, player, transform, entity) in query.iter_mut() {
+    dbg!("open");
+    for (mut velocity, player, transform, mut health) in query.iter_mut() {
+        dbg!("handle..");
         for key in input.get_pressed() {
+        dbg!("handle.. keys");
             match key {
                 KeyCode::W => {
                     if velocity.linvel.y < player.max_speed {
@@ -113,10 +124,12 @@ fn handle_keyboard_input(
                     Attack::shot_laser(
                         &mut commands,
                         &rapier_context,
-                        entity,
                         transform.translation.truncate(),
                         transform.rotation.to_axis_angle().0.truncate(),
+                        &death_sprite_animation,
+                        &mut health,
                     );  
+                    
                 },
                 
                 _ => {}
