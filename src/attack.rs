@@ -31,34 +31,6 @@ pub struct DeathSpriteAnimation {
 }
 
 
-// impl Die {
-// 	fn kill_entity(
-// 		mut commands: Commands,
-// 		mut query: Query<(&Transform, Entity), With<Die>>,
-// 		death_sprite_animation: Res<DeathSpriteAnimation>,
-// 	) {
-// 		for (transform, entity) in query.iter_mut() {
-// 			println!("Killed entity: {:?}", entity);
-// 			commands.spawn(SpriteSheetBundle {
-// 			    sprite: TextureAtlasSprite::new(death_sprite_animation.animation_indices.first),
-// 			    texture_atlas: death_sprite_animation.texture_atlas_handle.clone(),
-// 			    transform: Transform {
-// 			        translation: transform.translation,
-// 			        rotation: transform.rotation,
-// 			        scale: Vec3::splat(5.0),
-// 			    },
-// 				..Default::default()
-// 			})
-// 			.insert(AnimationIndices::from(death_sprite_animation.animation_indices.clone()))
-// 			.insert(AnimationTimer(Timer::new(Duration::from_millis(10), TimerMode::Repeating)));
-			
-// 		}
-// 	}
-// }
-
-
-
-
 // Ha ett system så när man sätter en attack på sin spelare som en komponent så attackerar attacken från sig själv
 // Ha en strukt metod man kallar med rätt argument för att utföra attackent
 
@@ -131,15 +103,11 @@ impl Attack {
 
 	pub fn shot_laser(
 		commands: &mut Commands,
-		// asset_server: Res<AssetServer>,
 		rapier_context: &Res<RapierContext>,
 		starting_point: Vec2,
 		direction: Vec2,
 		death_sprite_animation: &Res<DeathSpriteAnimation>,
 		health: &mut Health,
-		// toi: f32,
-		// group: Group,
-		
 	) {
 		let toi = f32::MAX;
 		if let Some((mut entity, real_toi)) = rapier_context.cast_ray(
