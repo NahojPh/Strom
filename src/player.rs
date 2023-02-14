@@ -92,11 +92,11 @@ fn handle_keyboard_input(
     
     
 ) {
-    dbg!("open");
+    // dbg!("open");
     for (mut velocity, player, transform, mut health) in query.iter_mut() {
-        dbg!("handle..");
+        // dbg!("handle..");
         for key in input.get_pressed() {
-        dbg!("handle.. keys");
+        // dbg!("handle.. keys");
             match key {
                 KeyCode::W => {
                     if velocity.linvel.y < player.max_speed {

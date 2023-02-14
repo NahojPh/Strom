@@ -80,7 +80,7 @@ impl AttackPlugin {
 	        TextureAtlas::from_grid(texture_handle, Vec2::new(100.0, 100.0), 8, 8, None, None);
 	    let texture_atlas_handle = texture_atlases.add(texture_atlas);
 	    // Use only the subset of sprites in the sheet that make up the run animation
-	    let animation_indices = AnimationIndices { first: 1, last: 63 };
+	    let animation_indices = AnimationIndices { first: 1, last: 32 };
 
 		commands.insert_resource(DeathSpriteAnimation {
 		    texture_atlas_handle,
@@ -97,7 +97,7 @@ fn take_damage(
 	entity: &mut Entity,
 	health: &mut Health,
 	damage_taken: usize,
-	translation: Vec2,
+	translation: Vec3,
 	death_sprite_animation: &Res<DeathSpriteAnimation>,
 ) {
 	dbg!("Taking damage.. or am i?");
@@ -106,7 +106,7 @@ fn take_damage(
 		    sprite: TextureAtlasSprite::new(death_sprite_animation.animation_indices.first),
 		    texture_atlas: death_sprite_animation.texture_atlas_handle.clone(),
 		    transform: Transform {
-		        translation: translation.extend(1.0),
+		        translation,
 		        scale: Vec3::splat(3.0),
 				..Default::default()
 		    },
@@ -142,25 +142,28 @@ impl Attack {
 		
 	) {
 		let toi = f32::MAX;
-		if let Some((mut entity, toi)) = rapier_context.cast_ray(
+		if let Some((mut entity, real_toi)) = rapier_context.cast_ray(
 			Vec2::new(starting_point.x, starting_point.y + 10.0), Vec2::new(0.0, 1.0), toi, false, QueryFilter::new()
 		) {
-			let hit_point = starting_point + direction * toi;
+			let hit_point = starting_point + direction * real_toi;
 			// println!("Hit entity! {:?} at point {:?}", entity, hit_point);
 			if let Some(mut _ec) = commands.get_entity(entity) {
+				println!("hit_point: {:?}, starting_point {:?}", hit_point.extend(1.0), starting_point);
+				
 			    take_damage(
 					commands,	
 					&mut entity,
 					health,
 					20,
-					hit_point,
+					//For some reason the x and y coordinate are in the wrong place, that is why
+					Vec3::new(hit_point.y, hit_point.x, 1.0), 
 					death_sprite_animation,
 				);
 			}
 			
 		}
 		else {
-			dbg!["Something went wrong.."];
+			dbg!("Something went wrong..");
 		}
 		
 		
