@@ -6,12 +6,15 @@ use crate::attack::Health;
 #[derive(Component)]
 pub struct Enemy;
 
+pub struct EnemyBundle {
+	
+}
 
 #[derive(Resource, Deref, DerefMut)]
-pub struct EnemyTypes(Vec<SpriteBundle>);
+struct EnemyTypes(Vec<SpriteBundle>);
 
 #[derive(Resource, Deref, DerefMut)]
-pub struct Wave(usize);
+struct Wave(usize);
 
 pub struct EnemyPlugin;
 
@@ -34,7 +37,7 @@ impl EnemyPlugin {
 		
     let space_ship_texture = asset_server.load("Mutant_SpaceMorphWasp_Mother_B_281x299.png");
 
-    commands.spawn(SpriteBundle {
+	commands.spawn(SpriteBundle {
         transform: Transform::from_translation(Vec3::new(0.0, 200.0, 0.0)),
         texture: space_ship_texture,
         ..Default::default()
@@ -47,6 +50,7 @@ impl EnemyPlugin {
 	.insert(LockedAxes::ROTATION_LOCKED)
 	.insert(Collider::ball(50.0))
 	.insert(Enemy);
+		
 		
 	}
 
