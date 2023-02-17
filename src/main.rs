@@ -32,7 +32,6 @@ fn main() {
             ..Default::default()
         })
         .add_startup_system(setup)
-        .add_loopless_state(AppState::InGame)
         .add_plugin(player::PlayerPlugin)
         .add_plugin(attack::AttackPlugin)
         .add_plugin(enemy::EnemyPlugin)
