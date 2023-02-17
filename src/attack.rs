@@ -15,10 +15,18 @@ impl Plugin for AttackPlugin {
 }
 
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct Health {
 	pub health: usize,
 	pub max_health: usize,	
+}
+impl Default for Health {
+    fn default() -> Self {
+       Health {
+	        health: 100,
+	        max_health: 100,
+	    }
+    }
 }
 
 #[derive(Component)]
