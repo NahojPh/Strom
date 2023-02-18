@@ -15,6 +15,8 @@ pub struct Enemy;
 #[derive(Component, Default, Clone)]
 pub struct EnemyDifficulty(pub usize);
 
+#[derive(Component, Default, Clone)]
+pub struct SpriteWidth(pub f32);
 
 #[derive(Resource, Default, Clone, Deref, DerefMut)]
 pub struct MoveEnemyBy(pub f32);
@@ -34,6 +36,7 @@ pub struct EnemyBundle {
 	visibility: Visibility,
 	computed_visisbility: ComputedVisibility,
 	enemy_diff: EnemyDifficulty,
+	sprite_width: SpriteWidth,
 	enemy: Enemy,
 }
 
@@ -80,6 +83,7 @@ impl EnemyPlugin {
 		lockedaxes: LockedAxes::ROTATION_LOCKED,
 		collider: Collider::ball(50.0),
 		enemy_diff: EnemyDifficulty(1),
+		sprite_width: SpriteWidth(281.0),
 		enemy: Enemy,
         ..Default::default()
     });
@@ -96,17 +100,23 @@ impl EnemyPlugin {
 		enemy_types: Res<EnemyTypes>,
 		mut enemy_query: Query<&mut Transform, With<Enemy>>,
 		move_enemy_by: Res<MoveEnemyBy>,
+		windows: Res<Windows>,
 	) {
 		// If true: The enemies on the screen will have to jump forward so the newly spawned entities have to come into the screen.
 		if wave_timer.just_finished() {
 			let next_enemy_index = rand::thread_rng().gen_range(0..enemy_types.len());		
 			for mut transform in enemy_query.iter_mut() {
-				transform.translation.y += move_enemy_by.0;
+				transform.translation.y -= move_enemy_by.0;
 			}
-			let next_enemy = enemy_types[next_enemy_index].clone();
+			let mut next_enemy = enemy_types[next_enemy_index].clone();
 			// Dont worry about it.
-			// for amount_of_enemies in 0..((next_enemy.enemy_diff.0 as isize -5_isize).abs()) as usize {
-			// }
+			let window_width = windows.get_primary().expect("Window is not found. Please send help").width();
+			let padding = 50.0;
+			let most_left_side = (window_width / 2.0) * -1.0;
+			
+			for amount_of_enemies in 0..((next_enemy.enemy_diff.0 as isize -5_isize).abs()) as usize {
+							 
+			}
 			
 			
 			wave_timer.reset();

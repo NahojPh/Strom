@@ -135,6 +135,7 @@ fn handle_keyboard_input(
                 _ => {}
             }
         }
+        // eprintln!("Transform: {}", transform.translation.x);
         // eprintln!("Forced! {}", velocity.linvel);
     } 
 }
