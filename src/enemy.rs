@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use rand::Rng;
 
 use crate::attack::Health;
 
@@ -15,8 +16,8 @@ pub struct Enemy;
 pub struct EnemyDifficulty(pub usize);
 
 
-#[derive(Component, Default, Clone)]
-pub struct NextEnemySize(pub usize);
+#[derive(Resource, Default, Clone, Deref, DerefMut)]
+pub struct MoveEnemyBy(pub f32);
 
 
 
@@ -33,7 +34,6 @@ pub struct EnemyBundle {
 	visibility: Visibility,
 	computed_visisbility: ComputedVisibility,
 	enemy_diff: EnemyDifficulty,
-	next_enemy_size: NextEnemySize,
 	enemy: Enemy,
 }
 
@@ -53,10 +53,13 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app
 			.add_startup_system(EnemyPlugin::setup)
+			.add_system(EnemyPlugin::spawn_wave)
 			
 			.insert_resource(Wave(1))
 			.insert_resource(WaveTimer(Timer::from_seconds(3.0, TimerMode::Repeating)))
 			.insert_resource(EnemyTypes(Vec::new()))
+			.insert_resource(MoveEnemyBy(200.0))
+		
 		;
     }
 }
@@ -80,7 +83,7 @@ impl EnemyPlugin {
 		enemy: Enemy,
         ..Default::default()
     });
-		
+		println!("{:?}", enemy_types[0].sprite);
 		
 		commands.spawn(enemy_types[0].clone());
 	}
@@ -91,13 +94,22 @@ impl EnemyPlugin {
 		time: Res<Time>,
 		mut wave_timer: ResMut<WaveTimer>,
 		enemy_types: Res<EnemyTypes>,
-		mut enemy_query: Query<(&mut Transform, &mut NextEnemySize), With<Enemy>>,
+		mut enemy_query: Query<&mut Transform, With<Enemy>>,
+		move_enemy_by: Res<MoveEnemyBy>,
 	) {
 		// If true: The enemies on the screen will have to jump forward so the newly spawned entities have to come into the screen.
 		if wave_timer.just_finished() {
-			for (mut transform, mut next_enemy_size) in enemy_query.iter_mut() {
-				
+			let next_enemy_index = rand::thread_rng().gen_range(0..enemy_types.len());		
+			for mut transform in enemy_query.iter_mut() {
+				transform.translation.y += move_enemy_by.0;
 			}
+			let next_enemy = enemy_types[next_enemy_index].clone();
+			// Dont worry about it.
+			// for amount_of_enemies in 0..((next_enemy.enemy_diff.0 as isize -5_isize).abs()) as usize {
+			// }
+			
+			
+			wave_timer.reset();
 		}
 		else {
 			wave_timer.tick(time.delta());
