@@ -20,7 +20,7 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app
 			.add_startup_system(EnemyPlugin::setup)
-			.add_system(EnemyPlugin::spawn_wave)
+			// .add_system(EnemyPlugin::spawn_wave)
 			.add_system(EnemyPlugin::move_enemy)
 			
 			.insert_resource(Wave(1))
@@ -57,49 +57,49 @@ impl EnemyPlugin {
 		commands.spawn(enemy_types.0.get(&EnemyType::MutantSpaceMother).unwrap().clone());
 	}
 
-	fn spawn_wave(
-		mut commands: Commands,
-		asset_server: Res<AssetServer>,
-		time: Res<Time>,
-		mut wave_timer: ResMut<WaveTimer>,
-		enemy_types: Res<EnemyTypes>,
-		mut enemy_query: Query<&mut Transform, With<Enemy>>,
-		move_enemy_by: Res<MoveEnemyBy>,
-		windows: Res<Windows>,
-		mut wave: ResMut<Wave>,
-	) {
-		// If true: The enemies on the screen will have to jump forward so the newly spawned entities have to come into the screen.
-		if wave_timer.just_finished() {
-			wave.0 += 1;
-			let next_enemy_index: EnemyType = rand::thread_rng().gen();		
-			for mut transform in enemy_query.iter_mut() {
-				transform.translation.y -= move_enemy_by.0 + 10.0;
-			}
-			let mut next_enemy = enemy_types.0.get(&next_enemy_index).unwrap().clone();
-			// Dont worry about it.
-			let window_width = windows.get_primary().expect("Window is not found. Please send help").width();
-			let padding = 50.0;
-			let most_left_side = (window_width / 2.0) * -1.0;
-			let amount_of_enemies_to_spawn = (next_enemy.enemy_diff.0 as isize -5_isize).abs() as usize;
-			dbg!("{}", most_left_side);
+	// fn spawn_wave(
+	// 	mut commands: Commands,
+	// 	asset_server: Res<AssetServer>,
+	// 	time: Res<Time>,
+	// 	mut wave_timer: ResMut<WaveTimer>,
+	// 	enemy_types: Res<EnemyTypes>,
+	// 	mut enemy_query: Query<&mut Transform, With<Enemy>>,
+	// 	move_enemy_by: Res<MoveEnemyBy>,
+	// 	windows: Res<Windows>,
+	// 	mut wave: ResMut<Wave>,
+	// ) {
+	// 	// If true: The enemies on the screen will have to jump forward so the newly spawned entities have to come into the screen.
+	// 	if wave_timer.just_finished() {
+	// 		wave.0 += 1;
+	// 		// let next_enemy_index: EnemyType = rand::thread_rng().gen();		
+	// 		for mut transform in enemy_query.iter_mut() {
+	// 			transform.translation.y -= move_enemy_by.0 + 10.0;
+	// 		}
+	// 		let mut next_enemy = enemy_types.0.get(&next_enemy_index).unwrap().clone();
+	// 		// Dont worry about it.
+	// 		let window_width = windows.get_primary().expect("Window is not found. Please send help").width();
+	// 		let padding = 50.0;
+	// 		let most_left_side = (window_width / 2.0) * -1.0;
+	// 		let amount_of_enemies_to_spawn = (next_enemy.enemy_diff.0 as isize -5_isize).abs() as usize;
+	// 		dbg!("{}", most_left_side);
 			
-			let mut enemy_spawn_x_translation = most_left_side;
+	// 		let mut enemy_spawn_x_translation = most_left_side;
 			
-			for amount_of_enemies in 0..amount_of_enemies_to_spawn {
-				next_enemy.transform.translation.x = most_left_side + (window_width / amount_of_enemies_to_spawn as f32)*amount_of_enemies as f32 + 50.0;
-				commands.spawn(next_enemy.clone());
-				enemy_spawn_x_translation += next_enemy.sprite_width.0;
-			}
+	// 		for amount_of_enemies in 0..amount_of_enemies_to_spawn {
+	// 			next_enemy.transform.translation.x = most_left_side + (window_width / amount_of_enemies_to_spawn as f32)*amount_of_enemies as f32 + 50.0;
+	// 			commands.spawn(next_enemy.clone());
+	// 			enemy_spawn_x_translation += next_enemy.sprite_width.0;
+	// 		}
 			
 			
-			wave_timer.reset();
-		}
-		else {
-			wave_timer.tick(time.delta());
-		}
+	// 		wave_timer.reset();
+	// 	}
+	// 	else {
+	// 		wave_timer.tick(time.delta());
+	// 	}
 		
 			
-	}
+	// }
 	
 	
 	fn move_enemy(

@@ -1,5 +1,8 @@
 use bevy::prelude::*;
-use std::collections::HashMap;
+use std::{
+	collections::HashMap,
+	convert::From,
+};
 use bevy_rapier2d::prelude::*;
 use rand::{
     distributions::{Distribution, Standard},
@@ -33,12 +36,21 @@ pub enum EnemyType {
 	CoreDefenderJudement,
 }
 
-impl Distribution<EnemyType> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> EnemyType {
-        todo!()
-    }
-} 
 
+impl From<usize> for EnemyType {
+	fn from(value: usize) -> EnemyType {
+		match value {
+			1 => EnemyType::BuggyBlue,
+			2 => EnemyType::BuggyRed,
+			3 => EnemyType::BuggyGreen,
+			4 => EnemyType::OverlordNightmare,
+			5 => EnemyType::CoreDefenderScarlet,
+			6 => EnemyType::CoreDefenderScarletDarkness,
+			7 => EnemyType::CoreDefenderJudement,
+			_ => EnemyType::MutantSpaceMother,
+		}
+	}
+}
 
 #[derive(Bundle, Default, Clone)]
 pub struct EnemyBundle {
