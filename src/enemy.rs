@@ -1,6 +1,10 @@
 use bevy::prelude::*;
+use std::collections::HashMap;
 use bevy_rapier2d::prelude::*;
-use rand::Rng;
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+}; 
 
 use crate::{attack::Health, player::Player};
 
@@ -24,7 +28,23 @@ pub struct EnemySpeed(pub f32);
 #[derive(Resource, Default, Clone, Deref, DerefMut)]
 pub struct MoveEnemyBy(pub f32);
 
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+pub enum EnemyType {
+	MutantSpaceMother,
+	BuggyBlue,
+	BuggyRed,
+	BuggyGreen,
+	OverlordNightmare,
+	CoreDefenderScarlet,
+	CoreDefenderScarletDarkness,
+	CoreDefenderJudement,
+}
 
+impl Distribution<EnemyType> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> EnemyType {
+        todo!()
+    }
+} 
 
 #[derive(Bundle, Default, Clone)]
 pub struct EnemyBundle {
@@ -45,7 +65,7 @@ pub struct EnemyBundle {
 }
 
 #[derive(Resource, Deref, DerefMut)]
-struct EnemyTypes(Vec<EnemyBundle>);
+struct EnemyTypes(HashMap<EnemyType, EnemyBundle>);
 
 #[derive(Resource, Deref, DerefMut)]
 struct Wave(usize);
@@ -65,7 +85,7 @@ impl Plugin for EnemyPlugin {
 			
 			.insert_resource(Wave(1))
 			.insert_resource(WaveTimer(Timer::from_seconds(3.0, TimerMode::Repeating)))
-			.insert_resource(EnemyTypes(Vec::new()))
+			.insert_resource(EnemyTypes(HashMap::new()))
 			.insert_resource(MoveEnemyBy(200.0))
 		
 		;
@@ -81,7 +101,7 @@ impl EnemyPlugin {
 		
     let space_ship_texture = asset_server.load("Mutant_SpaceMorphWasp_Mother_B_281x299.png");
 
-	enemy_types.push(EnemyBundle {
+	enemy_types.insert(EnemyType::MutantSpaceMother, EnemyBundle {
         transform: Transform::from_translation(Vec3::new(0.0, 200.0, 0.0)),
         texture: space_ship_texture,
 	    ridgidbody: RigidBody::Dynamic,
@@ -93,9 +113,8 @@ impl EnemyPlugin {
 		enemy: Enemy,
         ..Default::default()
     });
-		println!("{:?}", enemy_types[0].sprite);
 		
-		commands.spawn(enemy_types[0].clone());
+		commands.spawn(enemy_types.0.get(EnemyType::MutantSpaceMother).unwrap());
 	}
 
 	fn spawn_wave(
@@ -112,11 +131,11 @@ impl EnemyPlugin {
 		// If true: The enemies on the screen will have to jump forward so the newly spawned entities have to come into the screen.
 		if wave_timer.just_finished() {
 			wave.0 += 1;
-			let next_enemy_index = rand::thread_rng().gen_range(0..enemy_types.len());		
+			let next_enemy_index: EnemyType = rand::thread_rng().gen();		
 			for mut transform in enemy_query.iter_mut() {
 				transform.translation.y -= move_enemy_by.0 + 10.0;
 			}
-			let mut next_enemy = enemy_types[next_enemy_index].clone();
+			let mut next_enemy = enemy_types.0.get(next_enemy_index).unwrap().clone();
 			// Dont worry about it.
 			let window_width = windows.get_primary().expect("Window is not found. Please send help").width();
 			let padding = 50.0;
