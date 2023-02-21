@@ -2,6 +2,7 @@ mod player;
 mod attack;
 mod enemy;
 mod sprite_animation;
+mod enemy_util;
 
 
 use iyes_loopless::prelude::*;
