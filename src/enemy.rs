@@ -1,78 +1,18 @@
 use bevy::prelude::*;
 use std::collections::HashMap;
 use bevy_rapier2d::prelude::*;
-use rand::{
-    distributions::{Distribution, Standard},
-    Rng,
-}; 
+use rand::Rng; 
 
+use crate::enemy_util::*;
 use crate::{attack::Health, player::Player};
 
-#[derive(Component, Default, Clone)]
-pub struct Enemy;
 
 
 // Difficulty scale 1 - 5 (5 hardest)
 // Amount of enemies are inverted their difficulty scale
 // diff 1 = amount 5
 // diff 5 = amount 1 (maybe boss or that might be 6)
-#[derive(Component, Default, Clone)]
-pub struct EnemyDifficulty(pub usize);
 
-#[derive(Component, Default, Clone)]
-pub struct SpriteWidth(pub f32);
-
-#[derive(Component, Default, Clone)]
-pub struct EnemySpeed(pub f32);
-
-#[derive(Resource, Default, Clone, Deref, DerefMut)]
-pub struct MoveEnemyBy(pub f32);
-
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
-pub enum EnemyType {
-	MutantSpaceMother,
-	BuggyBlue,
-	BuggyRed,
-	BuggyGreen,
-	OverlordNightmare,
-	CoreDefenderScarlet,
-	CoreDefenderScarletDarkness,
-	CoreDefenderJudement,
-}
-
-impl Distribution<EnemyType> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> EnemyType {
-        todo!()
-    }
-} 
-
-#[derive(Bundle, Default, Clone)]
-pub struct EnemyBundle {
-	sprite: Sprite,
-	transform: Transform,
-	global_transform: GlobalTransform,
-	texture: Handle<Image>,
-	health: Health,
-	enemy_speed: EnemySpeed,
-	ridgidbody: RigidBody,
-	collider: Collider,
-	lockedaxes: LockedAxes,
-	visibility: Visibility,
-	computed_visisbility: ComputedVisibility,
-	enemy_diff: EnemyDifficulty,
-	sprite_width: SpriteWidth,
-	enemy: Enemy,
-}
-
-#[derive(Resource, Deref, DerefMut)]
-struct EnemyTypes(HashMap<EnemyType, EnemyBundle>);
-
-#[derive(Resource, Deref, DerefMut)]
-struct Wave(usize);
-
-// When next wave gone be.
-#[derive(Resource, Deref, DerefMut)]
-struct WaveTimer(Timer);
 
 pub struct EnemyPlugin;
 
@@ -114,7 +54,7 @@ impl EnemyPlugin {
         ..Default::default()
     });
 		
-		commands.spawn(enemy_types.0.get(EnemyType::MutantSpaceMother).unwrap());
+		commands.spawn(enemy_types.0.get(&EnemyType::MutantSpaceMother).unwrap().clone());
 	}
 
 	fn spawn_wave(
@@ -135,7 +75,7 @@ impl EnemyPlugin {
 			for mut transform in enemy_query.iter_mut() {
 				transform.translation.y -= move_enemy_by.0 + 10.0;
 			}
-			let mut next_enemy = enemy_types.0.get(next_enemy_index).unwrap().clone();
+			let mut next_enemy = enemy_types.0.get(&next_enemy_index).unwrap().clone();
 			// Dont worry about it.
 			let window_width = windows.get_primary().expect("Window is not found. Please send help").width();
 			let padding = 50.0;
