@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use rand::Rng;
 
-use crate::attack::Health;
+use crate::{attack::Health, player::Player};
 
 #[derive(Component, Default, Clone)]
 pub struct Enemy;
@@ -18,6 +18,9 @@ pub struct EnemyDifficulty(pub usize);
 #[derive(Component, Default, Clone)]
 pub struct SpriteWidth(pub f32);
 
+#[derive(Component, Default, Clone)]
+pub struct EnemySpeed(pub f32);
+
 #[derive(Resource, Default, Clone, Deref, DerefMut)]
 pub struct MoveEnemyBy(pub f32);
 
@@ -30,6 +33,7 @@ pub struct EnemyBundle {
 	global_transform: GlobalTransform,
 	texture: Handle<Image>,
 	health: Health,
+	enemy_speed: EnemySpeed,
 	ridgidbody: RigidBody,
 	collider: Collider,
 	lockedaxes: LockedAxes,
@@ -57,6 +61,7 @@ impl Plugin for EnemyPlugin {
         app
 			.add_startup_system(EnemyPlugin::setup)
 			.add_system(EnemyPlugin::spawn_wave)
+			.add_system(EnemyPlugin::move_enemy)
 			
 			.insert_resource(Wave(1))
 			.insert_resource(WaveTimer(Timer::from_seconds(3.0, TimerMode::Repeating)))
@@ -84,6 +89,7 @@ impl EnemyPlugin {
 		collider: Collider::ball(50.0),
 		enemy_diff: EnemyDifficulty(1),
 		sprite_width: SpriteWidth(281.0),
+		enemy_speed: EnemySpeed(50.0),
 		enemy: Enemy,
         ..Default::default()
     });
@@ -135,4 +141,45 @@ impl EnemyPlugin {
 		
 			
 	}
+	
+	
+	fn move_enemy(
+	    time: Res<Time>,
+	    mut query_set: ParamSet<(Query<(&EnemySpeed, &mut Transform)>, Query<&Transform, With<Player>>)>
+	) {
+	    //let query_cell = RefCell::new(query_set);
+
+	    let player_transform = match query_set.p1().iter().next() {
+	        Some(transform) => transform.clone(),
+	        None => return,
+	    };
+
+	    for (enemy_speed, mut enemy_transform) in query_set.p0().iter_mut() {
+	        //println!("Distance: {}", player_transform.translation.distance(transform.translation));
+	        //Player enemy difference.
+	        let pe_diff = player_transform.translation - enemy_transform.translation;
+
+        
+	        //Makes the enemies stop after reaching 120 pixels away from the player.
+	        //Keep your distance.
+	        /*
+	        if pe_diff.distance(Vec3::new(50.0, 50.0, 0.0)) <= 120.0 {
+	            continue;
+	        }
+	        */
+	        let angle = pe_diff.y.atan2(pe_diff.x);
+        
+        
+	        if !(pe_diff.distance(Vec3::new(50.0, 50.0, 0.0)) <= 100.0) {
+	           enemy_transform.rotation = Quat::from_rotation_z(angle); 
+	        }
+        
+	        if !(pe_diff.distance(enemy_transform.scale) <= 6.0) {
+	            enemy_transform.translation = enemy_transform.translation + (pe_diff.normalize() * enemy_speed.0 * time.delta_seconds());
+	         }
+
+	        //println!("Rotation {}", transform.rotation.normalize().angle_between(player_transform.rotation.normalize()));
+	    }
+	}
+	
 }
