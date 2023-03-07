@@ -21,7 +21,16 @@ enum AppState {
 fn main() {
     App::new()
         .add_loopless_state(AppState::InGame)
-        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .add_plugins(DefaultPlugins
+            .set(ImagePlugin::default_nearest())
+            .set(WindowPlugin {
+                window: WindowDescriptor {
+                    title: "Smog".to_owned(),
+                    scale_factor_override: Some(0.9),
+                    ..Default::default()
+                },
+                ..Default::default()
+        }))
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         .insert_resource(RapierConfiguration {
             gravity: Vec2::ZERO,

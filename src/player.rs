@@ -1,4 +1,4 @@
-use bevy::{prelude::*, input::mouse::MouseMotion};
+use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 
@@ -54,7 +54,7 @@ fn setup(
         ..Default::default()
     })
     .insert(Player {
-        speed: 500.0,
+        speed: 800.0,
         max_speed: 400.0,
         base_damage: 500.0,
         attack_speed: 1.0,

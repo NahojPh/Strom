@@ -139,7 +139,7 @@ impl Attack {
 			
 		}
 		else {
-			dbg!("Something went wrong..");
+			// Shot missed
 		}
 		
 		

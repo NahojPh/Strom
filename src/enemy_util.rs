@@ -12,6 +12,17 @@ use rand::{
 use crate::{attack::Health, player::Player};
 
 
+impl Distribution<EnemyType> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> EnemyType {
+        match rng.gen_range(0..=7) { // rand 0.8
+            a => EnemyType::from(a as usize),
+        }
+    }
+}
+
+#[derive(Resource, Default, Clone)]
+pub struct LastSpriteSize(pub f32, pub f32);
+
 #[derive(Component, Default, Clone)]
 pub struct EnemyDifficulty(pub usize);
 
@@ -24,7 +35,7 @@ pub struct EnemySpeed(pub f32);
 #[derive(Resource, Default, Clone, Deref, DerefMut)]
 pub struct MoveEnemyBy(pub f32);
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub enum EnemyType {
 	MutantSpaceMother,
 	BuggyBlue,
@@ -40,13 +51,13 @@ pub enum EnemyType {
 impl From<usize> for EnemyType {
 	fn from(value: usize) -> EnemyType {
 		match value {
-			1 => EnemyType::BuggyBlue,
-			2 => EnemyType::BuggyRed,
-			3 => EnemyType::BuggyGreen,
-			4 => EnemyType::OverlordNightmare,
-			5 => EnemyType::CoreDefenderScarlet,
-			6 => EnemyType::CoreDefenderScarletDarkness,
-			7 => EnemyType::CoreDefenderJudement,
+			// 0 => EnemyType::BuggyBlue,
+			// 1 => EnemyType::BuggyRed,
+			// 2 => EnemyType::BuggyGreen,
+			3 => EnemyType::OverlordNightmare,
+			4 => EnemyType::CoreDefenderScarlet,
+			// 5 => EnemyType::CoreDefenderScarletDarkness,
+			// 6 => EnemyType::CoreDefenderJudement,
 			_ => EnemyType::MutantSpaceMother,
 		}
 	}
@@ -67,6 +78,7 @@ pub struct EnemyBundle {
 	pub computed_visisbility: ComputedVisibility,
 	pub enemy_diff: EnemyDifficulty,
 	pub sprite_width: SpriteWidth,
+	pub velocity: Velocity,
 	pub enemy: Enemy,
 }
 
