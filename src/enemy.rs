@@ -100,6 +100,7 @@ impl EnemyPlugin {
 		windows: Res<Windows>,
 		mut wave: ResMut<Wave>,
 	) {
+		
 		// If true: The enemies on the screen will have to jump forward so the newly spawned entities have to come into the screen.
 		if wave_timer.just_finished() {
 			wave.0 += 1;

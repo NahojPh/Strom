@@ -3,6 +3,7 @@ mod attack;
 mod enemy;
 mod sprite_animation;
 mod enemy_util;
+mod user_interface;
 
 
 use iyes_loopless::prelude::*;
@@ -45,6 +46,7 @@ fn main() {
         .add_plugin(player::PlayerPlugin)
         .add_plugin(attack::AttackPlugin)
         .add_plugin(enemy::EnemyPlugin)
+        .add_plugin(user_interface::UiPlugin)
         .add_plugin(sprite_animation::SpriteAnimationPlugin)
         .run();
 }

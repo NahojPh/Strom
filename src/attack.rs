@@ -80,7 +80,7 @@ fn take_damage(
 	translation: Vec3,
 	death_sprite_animation: &Res<DeathSpriteAnimation>,
 ) {
-	dbg!("Taking damage.. or am i?");
+	// dbg!("Taking damage.. or am i?");
 	if damage_taken > health.health {
 		commands.spawn(SpriteSheetBundle {
 		    sprite: TextureAtlasSprite::new(death_sprite_animation.animation_indices.first),
@@ -124,7 +124,7 @@ impl Attack {
 			let hit_point = starting_point + direction * real_toi;
 			// println!("Hit entity! {:?} at point {:?}", entity, hit_point);
 			if let Some(mut _ec) = commands.get_entity(entity) {
-				println!("hit_point: {:?}, starting_point {:?}", hit_point.extend(1.0), starting_point);
+				// println!("hit_point: {:?}, starting_point {:?}", hit_point.extend(1.0), starting_point);
 				
 			    take_damage(
 					commands,	
