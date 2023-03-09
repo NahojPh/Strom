@@ -26,6 +26,10 @@ pub enum Effect {
 }
 
 
+#[derive(Component, Deref, DerefMut)]
+struct LaserAttackTimer(Timer);
+
+
 
 
 // Consider using this instead of making your own camera controller
@@ -34,9 +38,10 @@ pub enum Effect {
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system(handle_keyboard_input)
-            
             .add_startup_system(setup)
+            .add_system(handle_keyboard_input)
+            .add_system(update_laser_attack_timer)
+            
         ;
     }
 }
@@ -77,7 +82,20 @@ fn setup(
         health: 100,
         max_health: 100,
     })
+    .insert(LaserAttackTimer(Timer::from_seconds(1.0, TimerMode::Once)))
     ;
+    
+}
+
+fn update_laser_attack_timer(
+    time: Res<Time>,
+    mut query: Query<&mut LaserAttackTimer>,
+) {
+    for mut laser_attack_timer in query.iter_mut() {
+        if !laser_attack_timer.0.finished() {
+            laser_attack_timer.0.tick(time.delta());
+        }
+    }
     
 }
 
@@ -85,7 +103,7 @@ fn setup(
 fn handle_keyboard_input(
     mut commands: Commands,
     input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Velocity, &Player, &Transform, &mut Health)>,
+    mut query: Query<(&mut Velocity, &Player, &Transform, &mut Health, &mut LaserAttackTimer)>,
     time: Res<Time>,
     rapier_context: Res<RapierContext>,
 	death_sprite_animation: Res<DeathSpriteAnimation>,
@@ -93,7 +111,7 @@ fn handle_keyboard_input(
     
 ) {
     // dbg!("open");
-    for (mut velocity, player, transform, mut health) in query.iter_mut() {
+    for (mut velocity, player, transform, mut health, mut laser_attack_timer) in query.iter_mut() {
         // dbg!("handle..");
         for key in input.get_pressed() {
         // dbg!("handle.. keys");
@@ -121,14 +139,17 @@ fn handle_keyboard_input(
                     }
                 },
                 KeyCode::F => {
-                    Attack::shot_laser(
-                        &mut commands,
-                        &rapier_context,
-                        transform.translation.truncate(),
-                        transform.rotation.to_axis_angle().0.truncate(),
-                        &death_sprite_animation,
-                        &mut health,
-                    );  
+                    if laser_attack_timer.finished() {
+                        Attack::shot_laser(
+                            &mut commands,
+                            &rapier_context,
+                            transform.translation.truncate(),
+                            transform.rotation.to_axis_angle().0.truncate(),
+                            &death_sprite_animation,
+                            &mut health,
+                        );  
+                        laser_attack_timer.0.reset();                                            
+                    }
                     
                 },
                 
