@@ -148,7 +148,7 @@ fn handle_keyboard_input(
                             &death_sprite_animation,
                             &mut health,
                         );  
-                        laser_attack_timer.0.reset();                                            
+                        laser_attack_timer.0.reset();                 
                     }
                     
                 },

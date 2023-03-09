@@ -14,7 +14,7 @@ use crate::{attack::Health, player::Player};
 
 impl Distribution<EnemyType> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> EnemyType {
-        match rng.gen_range(0..=7) { // rand 0.8
+        match rng.gen_range(3..=5) { // rand 0.8
             a => EnemyType::from(a as usize),
         }
     }

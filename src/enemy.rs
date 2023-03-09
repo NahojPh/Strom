@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use bevy_rapier2d::prelude::*;
 use rand::Rng; 
 
+use crate::attack::{Attack, DeathSpriteAnimation, self};
 use crate::enemy_util::*;
 use crate::{attack::Health, player::Player};
 
@@ -21,7 +22,7 @@ impl Plugin for EnemyPlugin {
         app
 			.add_startup_system(EnemyPlugin::setup)
 			.add_system(EnemyPlugin::spawn_wave)
-			.add_system(EnemyPlugin::move_enemy_forward)			
+			.add_system(EnemyPlugin::control_enemy_movement)			
 			.insert_resource(Wave(1))
 			.insert_resource(WaveTimer(Timer::from_seconds(3.0, TimerMode::Repeating)))
 			.insert_resource(EnemyTypes(HashMap::new()))
@@ -78,7 +79,7 @@ impl EnemyPlugin {
 		collider: Collider::ball(50.0),
 		enemy_diff: EnemyDifficulty(1),
 		sprite_width: SpriteWidth(281.0),
-		enemy_speed: EnemySpeed(70.0),
+		enemy_speed: EnemySpeed(120.0),
 		velocity: Velocity::zero(),
 		enemy: Enemy,
         ..Default::default()
@@ -105,7 +106,7 @@ impl EnemyPlugin {
 		if wave_timer.just_finished() {
 			wave.0 += 1;
 			let next_enemy_index: EnemyType = rand::random();		
-			println!("{:?}", next_enemy_index);
+			// eprintln!("{:?}", next_enemy_index);
 			let mut next_enemy = enemy_types.0.get(&next_enemy_index).unwrap().clone();
 			// Dont worry about it.
 			let window_width = windows.get_primary().expect("Window is not found. Please send help").width();
@@ -117,7 +118,7 @@ impl EnemyPlugin {
 			let mut enemy_spawn_x_translation = most_left_side;
 			
 			for amount_of_enemies in 0..amount_of_enemies_to_spawn {
-				next_enemy.transform.translation.x = most_left_side + (window_width / amount_of_enemies_to_spawn as f32)*amount_of_enemies as f32 + 50.0;
+				next_enemy.transform.translation.x = most_left_side + (window_width / amount_of_enemies_to_spawn as f32) * amount_of_enemies as f32 + 50.0;
 				commands.spawn(next_enemy.clone());
 				enemy_spawn_x_translation += next_enemy.sprite_width.0;
 			}
@@ -129,15 +130,34 @@ impl EnemyPlugin {
 			wave_timer.tick(time.delta());
 		}
 	}
+
+	// When enemies go off screen (and possibily touch the player, end the game.)
+	fn end_game(
+		mut commands: Commands,
+		query: Query<(&Transform, Entity), With<Enemy>>,
+		windows: Res<Windows>,
+		
+		
+	) {
+		for (transform, entity) in query.iter() {
+			if transform.translation.y < windows.get_primary().expect("No window?").height() {
+				commands.entity(entity).despawn_recursive();
+			}
+		}
+		
+		
+	}
 	
 	// This is not very cash money
-	fn move_enemy_forward(
+	fn control_enemy_movement(
 		mut query: Query<&mut Velocity, With<Enemy>>,
 		move_enemy_by: Res<MoveEnemyBy>,
 		// time: Res<Time>,
 	) {
 		for mut velocity in query.iter_mut() {
 			velocity.linvel.y = **move_enemy_by * -1.0;
+			velocity.linvel.x = 0.0;
+			
 		}
 	}
 	

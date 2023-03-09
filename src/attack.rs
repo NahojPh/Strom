@@ -72,7 +72,7 @@ impl AttackPlugin {
 }
 
 
-fn take_damage(
+pub fn take_damage(
 	commands: &mut Commands,
 	entity: &mut Entity,
 	health: &mut Health,

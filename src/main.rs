@@ -8,7 +8,7 @@ mod user_interface;
 
 use iyes_loopless::prelude::*;
 use bevy_rapier2d::prelude::*;
-use bevy::{prelude::*, window::CursorGrabMode};
+use bevy::{prelude::*, window::{CursorGrabMode, PresentMode}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum AppState {
@@ -28,6 +28,7 @@ fn main() {
                 window: WindowDescriptor {
                     title: "Smog".to_owned(),
                     scale_factor_override: Some(0.9),
+                    mode: WindowMode::Fullscreen,
                     ..Default::default()
                 },
                 ..Default::default()
