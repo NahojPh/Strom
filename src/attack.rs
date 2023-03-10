@@ -29,9 +29,6 @@ impl Default for Health {
     }
 }
 
-#[derive(Component)]
-pub struct Die;
-
 #[derive(Resource)]
 pub struct DeathSpriteAnimation {
 	texture_atlas_handle: Handle<TextureAtlas>,
@@ -41,12 +38,6 @@ pub struct DeathSpriteAnimation {
 
 // Ha ett system så när man sätter en attack på sin spelare som en komponent så attackerar attacken från sig själv
 // Ha en strukt metod man kallar med rätt argument för att utföra attackent
-
-
-
-//Component put on players or enemies that have been struck by an attack to make them take damage
-#[derive(Component)]
-pub struct TakeDamage(usize); //Maybe make sparse
 
 
 impl AttackPlugin {
@@ -108,7 +99,9 @@ pub struct Attack;
 impl Attack {
 	// Style guide name: shoot_
 	// 
-
+// Måste lägga till en "laser" på laser attacken så det sys
+//	tänkte 'lerpa' mellan spelaren och fienden.
+	
 	pub fn shot_laser(
 		commands: &mut Commands,
 		rapier_context: &Res<RapierContext>,
@@ -135,6 +128,8 @@ impl Attack {
 					Vec3::new(hit_point.y, hit_point.x, 1.0), 
 					death_sprite_animation,
 				);
+
+				
 			}
 			
 		}
