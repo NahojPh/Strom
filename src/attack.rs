@@ -10,6 +10,7 @@ impl Plugin for AttackPlugin {
     fn build(&self, app: &mut App) {
     	app
 			.add_startup_system(AttackPlugin::setup)
+			.add_system(animate_laser)
 		;
     }
 }
@@ -93,6 +94,31 @@ pub fn take_damage(
 	}
 }
 
+#[derive(Component)]
+pub struct LaserAnimation {
+	timer: Timer,
+	starting_point: Vec3,
+	hit_point: Vec3,
+}
+
+fn animate_laser(
+	mut commands: Commands,
+	time: Res<Time>,
+	mut query: Query<(&mut Transform, &mut LaserAnimation, Entity)>,
+) { // 1 - delen delas på det hela
+	// i lerpen
+	for (mut transform, mut laser_animation, entity) in query.iter_mut() {
+		if laser_animation.timer.finished() {
+			commands.entity(entity).despawn_recursive();
+		}
+		else {
+			laser_animation.timer.tick(time.delta());
+
+			transform.translation = laser_animation.starting_point.lerp(Vec3::new(laser_animation.hit_point.y, laser_animation.hit_point.x, laser_animation.hit_point.z), laser_animation.timer.percent());
+		}
+	}
+	
+}
 
 pub struct Attack;
 
@@ -118,6 +144,23 @@ impl Attack {
 			// println!("Hit entity! {:?} at point {:?}", entity, hit_point);
 			if let Some(mut _ec) = commands.get_entity(entity) {
 				// println!("hit_point: {:?}, starting_point {:?}", hit_point.extend(1.0), starting_point);
+			commands.spawn(SpriteBundle {
+		        sprite: Sprite {
+		            color: Color::VIOLET,
+		            ..Default::default()
+	        },
+		        transform: Transform {
+					translation: starting_point.extend(0.0),
+					scale: Vec3::splat(15.0),
+					..Default::default()
+				},
+				..Default::default()
+		    })
+			.insert(LaserAnimation {
+		        timer: Timer::from_seconds(1.0, TimerMode::Once),
+		        starting_point: starting_point.extend(0.0),
+		        hit_point: hit_point.extend(0.0),
+		    });
 				
 			    take_damage(
 					commands,	
@@ -125,6 +168,7 @@ impl Attack {
 					health,
 					20,
 					//For some reason the x and y coordinate are in the wrong place, that is why
+					//change them back for better.
 					Vec3::new(hit_point.y, hit_point.x, 1.0), 
 					death_sprite_animation,
 				);

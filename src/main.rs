@@ -28,7 +28,6 @@ fn main() {
                 window: WindowDescriptor {
                     title: "Smog".to_owned(),
                     scale_factor_override: Some(0.9),
-                    mode: WindowMode::Fullscreen,
                     ..Default::default()
                 },
                 ..Default::default()
