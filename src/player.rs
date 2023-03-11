@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_rapier2d::prelude::*;
 
 
@@ -13,7 +13,8 @@ impl Plugin for PlayerPlugin {
             .add_system(PlayerPlugin::setup.in_schedule(OnEnter(AppState::InGame)))
             .add_systems((
                 PlayerPlugin::handle_keyboard_input,
-                PlayerPlugin::update_laser_attack_timer
+                PlayerPlugin::update_laser_attack_timer,
+                PlayerPlugin::render_laser_attack_timer,
             ).in_set(OnUpdate(AppState::InGame)))
             .add_system(PlayerPlugin::clean_on_exit.in_schedule(OnExit(AppState::InGame)))
         ;
@@ -44,6 +45,10 @@ pub enum Effect {
 #[derive(Component, Deref, DerefMut)]
 struct LaserAttackTimer(Timer);
 
+#[derive(Component)]
+struct LaserIcon;
+
+
 
 
 impl PlayerPlugin {
@@ -51,7 +56,11 @@ impl PlayerPlugin {
     fn setup(
         mut commands: Commands,
         asset_server: Res<AssetServer>,
+		window_query: Query<&Window, With<PrimaryWindow>>,
     ) {
+		let Ok(window) = window_query.get_single() else {
+	        return;
+	    };
 
         let space_ship_texture = asset_server.load("Overlord_02_119x161.png");
 
@@ -87,14 +96,51 @@ impl PlayerPlugin {
         .insert(Alive)
         .insert(LaserAttackTimer(Timer::from_seconds(1.0, TimerMode::Once)))
         ;
+
+        let laser_icon_texture = asset_server.load("LaserIcon.png");
+
+        commands.spawn(SpriteBundle {
+            transform: Transform::from_xyz(
+                (window.width() / 2.0) * -1.0 + 60.0, 
+                (window.height() / 2.0) * -1.0 + 60.0,
+                100.0
+            ),
+            texture: laser_icon_texture,
+            ..Default::default()
+        })
+        .insert(LaserIcon)
+        ;
     
     }
 
+    fn render_laser_attack_timer(
+        laser_timer_query: Query<&LaserAttackTimer, (With<Player>, Without<LaserIcon>)>,
+        laser_icon_query: Query<&mut Visibility, (With<LaserIcon>, Without<Player>)>,
+        time: Res<Time>,
+    ) {
+        for laser_attack_timer in laser_timer_query.iter() {
+            for mut visibility in laser_icon_query.iter() {
+                if laser_attack_timer.finished() {
+                    visibility = &Visibility::Visible;
+                }
+                else {
+                    visibility = &Visibility::Hidden;
+                }
+            }
+        }
+        
+    }
+    
+
     fn clean_on_exit(
         mut commands: Commands,
-        query: Query<Entity, With<Player>>,
+        player_query: Query<Entity, With<Player>>,
+        laser_icon_query: Query<Entity, (With<LaserIcon>, Without<Player>)>,
     ) {
-        for entity in query.iter() {
+        for entity in player_query.iter() {
+            commands.entity(entity).despawn_recursive();
+        }
+        for entity in laser_icon_query.iter() {
             commands.entity(entity).despawn_recursive();
         }
     }

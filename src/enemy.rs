@@ -32,7 +32,7 @@ impl Plugin for EnemyPlugin {
 			.insert_resource(Wave(0))
 			.insert_resource(WaveTimer(Timer::from_seconds(3.0, TimerMode::Repeating)))
 			.insert_resource(EnemyTypes(HashMap::new()))
-			.insert_resource(MoveEnemyBy(20.0))
+			.insert_resource(MoveEnemyBy(30.0))
 		
 		;
     }
@@ -155,7 +155,7 @@ impl EnemyPlugin {
 		}
 	}
 
-	// When enemies go off screen (and possibily touch the player, end the game.)
+	// When enemies or players go off screen (and possibily touch the player, end the game.)
 	fn end_game(
 		mut commands: Commands,
 		query: Query<(&Transform, Entity), With<Alive>>,

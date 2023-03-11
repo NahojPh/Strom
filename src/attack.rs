@@ -12,7 +12,7 @@ impl Plugin for AttackPlugin {
 			.add_startup_system(AttackPlugin::setup)
 			.add_system(AttackPlugin::animate_laser.in_set(OnUpdate(AppState::InGame)))
 			.add_system(AttackPlugin::render_game_over_text.in_schedule(OnEnter(AppState::GameOver)))
-			.add_system(AttackPlugin::game_over_transition.in_schedule(OnExit(AppState::GameOver)))
+			.add_system(AttackPlugin::game_over_transition.in_set(OnUpdate(AppState::GameOver)))
 		;
     }
 }
@@ -76,7 +76,6 @@ impl AttackPlugin {
 		mut commands: Commands,
 		asset_server: Res<AssetServer>,
 		window_query: Query<&Window, With<PrimaryWindow>>,
-		mut next_state: ResMut<NextState<AppState>>,
 	) {
 		let Ok(window) = window_query.get_single() else {
 	        return;
@@ -104,7 +103,6 @@ impl AttackPlugin {
 		GameOverText(Timer::from_seconds(3.0, TimerMode::Once)),
 		));
 
-		next_state.set(AppState::MainMenu);
 		
 
 	
@@ -113,15 +111,20 @@ impl AttackPlugin {
 
 	fn game_over_transition(
 		mut commands: Commands,
-		query: Query<Entity, With<GameOverText>>,
+		mut query: Query<(&mut GameOverText, Entity)>,
+		mut next_state: ResMut<NextState<AppState>>,
+		time: Res<Time>,
 	) {
-		// This is often bad to do (sleep a thread in bevy) but because nothing should be happening while 
-		// the game over screen is happening this is fine.
-		std::thread::sleep(Duration::from_secs(2));
-
-		for entity in query.iter() {
-			commands.entity(entity).despawn_recursive();
+		for (mut game_over_text, entity) in query.iter_mut() {
+			if game_over_text.0.finished() {
+				commands.entity(entity).despawn_recursive();
+				next_state.set(AppState::MainMenu);
+			}
+			else {
+				game_over_text.0.tick(time.delta());
+			}
 		}
+		
 		
 	}
 	
