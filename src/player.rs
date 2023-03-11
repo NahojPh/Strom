@@ -94,7 +94,7 @@ impl PlayerPlugin {
             max_health: 100,
         })
         .insert(Alive)
-        .insert(LaserAttackTimer(Timer::from_seconds(1.0, TimerMode::Once)))
+        .insert(LaserAttackTimer(Timer::from_seconds(1.0, TimerMode::Repeating)))
         ;
 
         let laser_icon_texture = asset_server.load("LaserIcon.png");
@@ -202,7 +202,6 @@ impl PlayerPlugin {
                                 &mut commands,
                                 &rapier_context,
                                 transform.translation.truncate(),
-                                transform.rotation.to_axis_angle().0.truncate(),
                                 &death_sprite_animation,
                                 &mut health,
                             );  

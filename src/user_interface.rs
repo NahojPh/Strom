@@ -91,7 +91,7 @@ impl UiPlugin {
 		mut next_state: ResMut<NextState<AppState>>,
         input: Res<Input<KeyCode>>,
 	) {
-		match input.get_pressed().next() {
+		match input.get_just_released().next() {
 		    Some(_) => next_state.set(AppState::InGame),
 		    None => {},
 		}
