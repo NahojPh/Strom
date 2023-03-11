@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
 use std::collections::HashMap;
 use bevy_rapier2d::prelude::*;
 use rand::Rng; 
@@ -98,7 +99,7 @@ impl EnemyPlugin {
 		enemy_types: Res<EnemyTypes>,
 		mut enemy_query: Query<&mut Transform, With<Enemy>>,
 		move_enemy_by: Res<MoveEnemyBy>,
-		windows: Res<Windows>,
+		window_query: Query<&Window, With<PrimaryWindow>>,
 		mut wave: ResMut<Wave>,
 	) {
 		
@@ -109,7 +110,10 @@ impl EnemyPlugin {
 			// eprintln!("{:?}", next_enemy_index);
 			let mut next_enemy = enemy_types.0.get(&next_enemy_index).unwrap().clone();
 			// Dont worry about it.
-			let window_width = windows.get_primary().expect("Window is not found. Please send help").width();
+			let Ok(window) = window_query.get_single() else {
+		        return;
+		    };
+			let window_width = window.width();
 			let padding = 50.0;
 			let most_left_side = (window_width / 2.0) * -1.0;
 			let amount_of_enemies_to_spawn = (next_enemy.enemy_diff.0 as isize -5_isize).abs() as usize;
@@ -135,12 +139,15 @@ impl EnemyPlugin {
 	fn end_game(
 		mut commands: Commands,
 		query: Query<(&Transform, Entity), With<Enemy>>,
-		windows: Res<Windows>,
+		window_query: Query<&Window, With<PrimaryWindow>>,
 		
 		
 	) {
 		for (transform, entity) in query.iter() {
-			if transform.translation.y < windows.get_primary().expect("No window?").height() {
+			let Ok(window) = window_query.get_single() else {
+		        return;
+		    };
+			if transform.translation.y < window.height() {
 				commands.entity(entity).despawn_recursive();
 			}
 		}

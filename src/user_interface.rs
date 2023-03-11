@@ -33,7 +33,7 @@ impl UiPlugin {
 			    color: Color::WHITE,
 			},
 		)
-		.with_text_alignment(TextAlignment::CENTER)
+		.with_text_alignment(TextAlignment::Center)
 		.with_style(Style {
 			position_type: PositionType::Absolute,
 			position: UiRect {

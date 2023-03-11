@@ -1,6 +1,4 @@
 use bevy::prelude::*;
-use iyes_loopless::prelude::*;
-
 pub struct SpriteAnimationPlugin;
 
 impl Plugin for SpriteAnimationPlugin {

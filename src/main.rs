@@ -6,13 +6,13 @@ mod enemy_util;
 mod user_interface;
 
 
-use iyes_loopless::prelude::*;
 use bevy_rapier2d::prelude::*;
-use bevy::{prelude::*, window::{CursorGrabMode, PresentMode}};
+use bevy::{prelude::*, window::{CursorGrabMode, PresentMode, WindowResolution}};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, States, Default )]
 enum AppState {
     MainMenu,
+    #[default]
     InGame,
     Paused,
     Shopping,
@@ -21,15 +21,16 @@ enum AppState {
 
 fn main() {
     App::new()
-        .add_loopless_state(AppState::InGame)
+        .add_state::<AppState>()
         .add_plugins(DefaultPlugins
             .set(ImagePlugin::default_nearest())
             .set(WindowPlugin {
-                window: WindowDescriptor {
+                primary_window: Some(Window {
                     title: "Smog".to_owned(),
-                    scale_factor_override: Some(0.9),
+                    resolution: WindowResolution::new(1024.0, 640.0).with_scale_factor_override(0.9),
                     ..Default::default()
-                },
+                    
+                }),
                 ..Default::default()
         }))
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
