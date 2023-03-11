@@ -11,8 +11,8 @@ use bevy::{prelude::*, window::{CursorGrabMode, PresentMode, WindowResolution}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, States, Default, SystemSet)]
 pub enum AppState {
-    MainMenu,
     #[default]
+    MainMenu,
     InGame,
     Paused,
     Shopping,

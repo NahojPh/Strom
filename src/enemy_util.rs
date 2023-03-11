@@ -9,7 +9,7 @@ use rand::{
     Rng,
 }; 
 
-use crate::{attack::Health, player::Player};
+use crate::{attack::{Health, Alive}, player::Player};
 
 
 impl Distribution<EnemyType> for Standard {
@@ -79,6 +79,7 @@ pub struct EnemyBundle {
 	pub enemy_diff: EnemyDifficulty,
 	pub sprite_width: SpriteWidth,
 	pub velocity: Velocity,
+	pub alive: Alive,
 	pub enemy: Enemy,
 }
 

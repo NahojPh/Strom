@@ -17,6 +17,9 @@ impl Plugin for AttackPlugin {
     }
 }
 
+// Used to query both players and enemies.
+#[derive(Component, Clone, Default)]
+pub struct Alive;
 
 #[derive(Component, Clone)]
 pub struct Health {
@@ -83,7 +86,7 @@ impl AttackPlugin {
 			"Game Over Idiot",
 			TextStyle {
 			    font: asset_server.load("./fonts/Roboto-Black.ttf"),
-			    font_size: 150.0,
+			    font_size: 100.0,
 			    color: Color::WHITE,
 			},
 		)
@@ -92,8 +95,8 @@ impl AttackPlugin {
 			position_type: PositionType::Absolute,
 			position: UiRect {
 			
-			    right: Val::Px(window.width() / 2.0),
-			    bottom: Val::Px(window.height() / 2.0),
+			    right: Val::Px(0.0),
+			    bottom: Val::Percent(50.0),
 				..Default::default()
 			},
 			..Default::default()	

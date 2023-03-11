@@ -2,10 +2,25 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 
-use crate::{attack::{Attack, DeathSpriteAnimation, Health}, AppState};
+use crate::{attack::{Attack, DeathSpriteAnimation, Health, Alive}, AppState};
 
 
 pub struct PlayerPlugin;
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        app
+            .add_system(PlayerPlugin::setup.in_schedule(OnEnter(AppState::InGame)))
+            .add_systems((
+                PlayerPlugin::handle_keyboard_input,
+                PlayerPlugin::update_laser_attack_timer
+            ).in_set(OnUpdate(AppState::InGame)))
+            .add_system(PlayerPlugin::clean_on_exit.in_schedule(OnExit(AppState::InGame)))
+        ;
+    }
+
+}
+
 
 #[derive(Component)]
 pub struct Player {
@@ -30,24 +45,6 @@ pub enum Effect {
 struct LaserAttackTimer(Timer);
 
 
-
-
-// Consider using this instead of making your own camera controller
-// https://github.com/sburris0/bevy_flycam
-
-impl Plugin for PlayerPlugin {
-    fn build(&self, app: &mut App) {
-        app
-            .add_system(PlayerPlugin::setup.in_schedule(OnEnter(AppState::InGame)))
-            .add_systems((
-                PlayerPlugin::handle_keyboard_input,
-                PlayerPlugin::update_laser_attack_timer
-            ).in_set(OnUpdate(AppState::InGame)))
-            .add_system(PlayerPlugin::clean_on_exit.in_schedule(OnExit(AppState::InGame)))
-        ;
-    }
-
-}
 
 impl PlayerPlugin {
     
@@ -87,6 +84,7 @@ impl PlayerPlugin {
             health: 100,
             max_health: 100,
         })
+        .insert(Alive)
         .insert(LaserAttackTimer(Timer::from_seconds(1.0, TimerMode::Once)))
         ;
     

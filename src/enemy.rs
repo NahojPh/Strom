@@ -5,7 +5,7 @@ use bevy_rapier2d::prelude::*;
 use rand::Rng; 
 
 use crate::AppState;
-use crate::attack::{Attack, DeathSpriteAnimation, self};
+use crate::attack::{Attack, DeathSpriteAnimation, self, Alive};
 use crate::enemy_util::*;
 use crate::{attack::Health, player::Player};
 
@@ -28,7 +28,8 @@ impl Plugin for EnemyPlugin {
 				EnemyPlugin::control_enemy_movement,
 				EnemyPlugin::end_game,
 			).in_set(OnUpdate(AppState::InGame)))
-			.insert_resource(Wave(1))
+			.add_system(EnemyPlugin::clean_on_exit_in_game.in_schedule(OnExit(AppState::InGame)))
+			.insert_resource(Wave(0))
 			.insert_resource(WaveTimer(Timer::from_seconds(3.0, TimerMode::Repeating)))
 			.insert_resource(EnemyTypes(HashMap::new()))
 			.insert_resource(MoveEnemyBy(20.0))
@@ -96,6 +97,20 @@ impl EnemyPlugin {
 		// commands.spawn(enemy_types.0.get(&EnemyType::CoreDefenderScarlet).unwrap().clone());
 	}
 
+	fn clean_on_exit_in_game(
+        mut commands: Commands,
+        query: Query<Entity, With<Enemy>>,
+		mut wave: ResMut<Wave>,
+			
+	) {
+        for entity in query.iter() {
+            commands.entity(entity).despawn_recursive();
+        }
+
+		wave.0 = 0;
+	}
+	
+
 	fn spawn_wave(
 		mut commands: Commands,
 		asset_server: Res<AssetServer>,
@@ -143,21 +158,30 @@ impl EnemyPlugin {
 	// When enemies go off screen (and possibily touch the player, end the game.)
 	fn end_game(
 		mut commands: Commands,
-		query: Query<(&Transform, Entity)>,
+		query: Query<(&Transform, Entity), With<Alive>>,
 		window_query: Query<&Window, With<PrimaryWindow>>,
 		mut next_state: ResMut<NextState<AppState>>,
 		
 	) {
+		let Ok(window) = window_query.get_single() else {
+	        return;
+	    };
 		for (transform, entity) in query.iter() {
-			let Ok(window) = window_query.get_single() else {
-		        return;
-		    };
 			
-			// eprintln!("translation: {}, height: {}", transform.translation.y, window.height());
-			if transform.translation.y < (window.height() / 2.0) * -1.0 {
+			// Checks if enemies or players are within the y-axis bounds of the game.
+			if transform.translation.y < (window.height() / 2.0) * -1.0 ||
+			transform.translation.y > (window.height() / 2.0) {
 				eprintln!("delted entity at {}", transform.translation.y);
 				commands.entity(entity).despawn_recursive();
 				next_state.set(AppState::GameOver);
+			}
+
+			// // Checks if enemies or players are within the x-axis bounds of the screen.
+			if transform.translation.x > (window.width() / 2.0) ||
+			transform.translation.x < (window.width() / 2.0) * -1.0 {
+				commands.entity(entity).despawn_recursive();
+				next_state.set(AppState::GameOver);
+					
 			}
 		}
 		
