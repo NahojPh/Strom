@@ -2,14 +2,12 @@ use bevy::prelude::*;
 
 use crate::{enemy_util::Wave, AppState};
 
-	
-struct StatsText;
-
 #[derive(Component)]
 struct WaveText;
 
 #[derive(Component)]
 struct MainMenuText;
+
 
 
 pub struct UiPlugin;
@@ -22,7 +20,6 @@ impl Plugin for UiPlugin {
 			.add_system(UiPlugin::start_game_input_handler.in_set(OnUpdate(AppState::MainMenu)))
 			.add_system(UiPlugin::clear_on_exit_main_menu.in_schedule(OnExit(AppState::MainMenu)))
 			.add_system(UiPlugin::clear_on_exit_in_game.in_schedule(OnExit(AppState::InGame)))
-			
 			;
     }
 }
@@ -31,7 +28,6 @@ impl UiPlugin {
 	fn setup(
 	mut commands: Commands,
 	asset_server: Res<AssetServer>,
-	wave: Res<Wave>
 	) {
 		commands.spawn((TextBundle::from_section(
 			"Wave: 0",
@@ -101,7 +97,7 @@ impl UiPlugin {
 	fn render_main_menu(
 		mut commands: Commands,
 		asset_server: Res<AssetServer>,	
-		wave: Res<Wave>,
+		mut wave: ResMut<Wave>,
 	) {
 		commands.spawn((TextBundle::from_section(
 			if wave.0 > 0 {format!("Last game ended on wave {}", wave.0)} else {format!("")},
@@ -115,7 +111,7 @@ impl UiPlugin {
 		.with_style(Style {
 			position_type: PositionType::Absolute,
 			position: UiRect {
-			    right: Val::Percent(10.0),
+			    right: Val::Percent(20.0),
 			    bottom: Val::Percent(60.0),
 				..Default::default()
 			},
@@ -136,7 +132,7 @@ impl UiPlugin {
 		.with_style(Style {
 			position_type: PositionType::Absolute,
 			position: UiRect {
-			    right: Val::Percent(10.0),
+			    right: Val::Percent(20.0),
 			    bottom: Val::Percent(40.0),
 				..Default::default()
 			},
@@ -145,9 +141,8 @@ impl UiPlugin {
 		MainMenuText,
 		));
 	
-		
-	
-		
+
+		wave.0 = 0;
 	}
 }
 

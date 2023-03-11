@@ -94,7 +94,7 @@ impl AttackPlugin {
 			position_type: PositionType::Absolute,
 			position: UiRect {
 			
-			    right: Val::Px(0.0),
+			    right: Val::Percent(20.0),
 			    bottom: Val::Percent(50.0),
 				..Default::default()
 			},
@@ -230,8 +230,6 @@ impl Attack {
 					&mut entity,
 					health,
 					200,
-					//For some reason the x and y coordinate are in the wrong place, that is why
-					//change them back for better.
 					Vec3::new(hit_point.x, hit_point.y, 1.0), 
 					death_sprite_animation,
 				);

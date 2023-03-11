@@ -28,7 +28,8 @@ fn main() {
             .set(WindowPlugin {
                 primary_window: Some(Window {
                     title: "Smog".to_owned(),
-                    resolution: WindowResolution::new(1024.0, 640.0).with_scale_factor_override(0.9),
+                    resizable: false,
+                    resolution: WindowResolution::new(1024.0, 1000.0).with_scale_factor_override(0.9),
                     ..Default::default()
                     
                 }),

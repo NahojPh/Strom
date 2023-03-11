@@ -106,8 +106,6 @@ impl EnemyPlugin {
         for entity in query.iter() {
             commands.entity(entity).despawn_recursive();
         }
-
-		wave.0 = 0;
 	}
 	
 
