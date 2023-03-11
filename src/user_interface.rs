@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::enemy_util::Wave;
+use crate::{enemy_util::Wave, AppState};
 
 	
 struct StatsText;
@@ -14,7 +14,7 @@ impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
 		app
 			.add_startup_system(UiPlugin::setup)	
-			.add_system(UiPlugin::update_ui)
+			.add_system(UiPlugin::update_ingame_ui.in_set(OnUpdate(AppState::InGame)))
 			;
     }
 }
@@ -26,7 +26,7 @@ impl UiPlugin {
 	wave: Res<Wave>
 	) {
 		commands.spawn((TextBundle::from_section(
-			format!("Wave: {}", wave.0),
+			"",
 			TextStyle {
 			    font: asset_server.load("./fonts/Roboto-Black.ttf"),
 			    font_size: 45.0,
@@ -48,7 +48,7 @@ impl UiPlugin {
 	
 	}
 
-	fn update_ui(
+	fn update_ingame_ui(
 		mut wave_text_query: Query<&mut Text, With<WaveText>>,
 		mut wave: ResMut<Wave>
 	) {

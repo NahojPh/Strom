@@ -9,13 +9,14 @@ mod user_interface;
 use bevy_rapier2d::prelude::*;
 use bevy::{prelude::*, window::{CursorGrabMode, PresentMode, WindowResolution}};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, States, Default )]
-enum AppState {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, States, Default, SystemSet)]
+pub enum AppState {
     MainMenu,
     #[default]
     InGame,
     Paused,
     Shopping,
+    GameOver,
 }
 
 

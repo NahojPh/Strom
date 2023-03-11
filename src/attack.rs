@@ -1,8 +1,8 @@
 use std::time::Duration;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_rapier2d::prelude::{RapierContext, QueryFilter, Group, CollisionGroups};
-use crate::sprite_animation::*;
+use crate::{sprite_animation::*, AppState};
 
 pub struct AttackPlugin;
 
@@ -10,7 +10,9 @@ impl Plugin for AttackPlugin {
     fn build(&self, app: &mut App) {
     	app
 			.add_startup_system(AttackPlugin::setup)
-			.add_system(animate_laser)
+			.add_system(AttackPlugin::animate_laser.in_set(OnUpdate(AppState::InGame)))
+			.add_system(AttackPlugin::render_game_over_text.in_schedule(OnEnter(AppState::GameOver)))
+			.add_system(AttackPlugin::game_over_transition.in_schedule(OnExit(AppState::GameOver)))
 		;
     }
 }
@@ -37,8 +39,15 @@ pub struct DeathSpriteAnimation {
 }
 
 
-// Ha ett system så när man sätter en attack på sin spelare som en komponent så attackerar attacken från sig själv
-// Ha en strukt metod man kallar med rätt argument för att utföra attackent
+#[derive(Component)]
+pub struct LaserAnimation {
+	timer: Timer,
+	starting_point: Vec3,
+	hit_point: Vec3,
+}
+
+#[derive(Component)]
+struct GameOverText(Timer);
 
 
 impl AttackPlugin {
@@ -60,7 +69,79 @@ impl AttackPlugin {
 		});
 	}
 	
+	fn render_game_over_text(
+		mut commands: Commands,
+		asset_server: Res<AssetServer>,
+		window_query: Query<&Window, With<PrimaryWindow>>,
+		mut next_state: ResMut<NextState<AppState>>,
+	) {
+		let Ok(window) = window_query.get_single() else {
+	        return;
+	    };
+	
+		commands.spawn((TextBundle::from_section(
+			"Game Over Idiot",
+			TextStyle {
+			    font: asset_server.load("./fonts/Roboto-Black.ttf"),
+			    font_size: 150.0,
+			    color: Color::WHITE,
+			},
+		)
+		.with_text_alignment(TextAlignment::Center)
+		.with_style(Style {
+			position_type: PositionType::Absolute,
+			position: UiRect {
+			
+			    right: Val::Px(window.width() / 2.0),
+			    bottom: Val::Px(window.height() / 2.0),
+				..Default::default()
+			},
+			..Default::default()	
+		}),
+		GameOverText(Timer::from_seconds(3.0, TimerMode::Once)),
+		));
+
+		next_state.set(AppState::MainMenu);
 		
+
+	
+	
+	}
+
+	fn game_over_transition(
+		mut commands: Commands,
+		query: Query<Entity, With<GameOverText>>,
+	) {
+		// This is often bad to do (sleep a thread in bevy) but because nothing should be happening while 
+		// the game over screen is happening this is fine.
+		std::thread::sleep(Duration::from_secs(2));
+
+		for entity in query.iter() {
+			commands.entity(entity).despawn_recursive();
+		}
+		
+	}
+	
+	
+		
+	fn animate_laser(
+		mut commands: Commands,
+		time: Res<Time>,
+		mut query: Query<(&mut Transform, &mut LaserAnimation, Entity)>,
+	) { // 1 - delen delas på det hela
+		// i lerpen
+		for (mut transform, mut laser_animation, entity) in query.iter_mut() {
+			if laser_animation.timer.finished() {
+				commands.entity(entity).despawn_recursive();
+			}
+			else {
+				laser_animation.timer.tick(time.delta());
+
+				transform.translation = laser_animation.starting_point.lerp(Vec3::new(laser_animation.hit_point.y, laser_animation.hit_point.x, laser_animation.hit_point.z), laser_animation.timer.percent());
+			}
+		}
+	
+	}
 }
 
 
@@ -94,31 +175,7 @@ pub fn take_damage(
 	}
 }
 
-#[derive(Component)]
-pub struct LaserAnimation {
-	timer: Timer,
-	starting_point: Vec3,
-	hit_point: Vec3,
-}
 
-fn animate_laser(
-	mut commands: Commands,
-	time: Res<Time>,
-	mut query: Query<(&mut Transform, &mut LaserAnimation, Entity)>,
-) { // 1 - delen delas på det hela
-	// i lerpen
-	for (mut transform, mut laser_animation, entity) in query.iter_mut() {
-		if laser_animation.timer.finished() {
-			commands.entity(entity).despawn_recursive();
-		}
-		else {
-			laser_animation.timer.tick(time.delta());
-
-			transform.translation = laser_animation.starting_point.lerp(Vec3::new(laser_animation.hit_point.y, laser_animation.hit_point.x, laser_animation.hit_point.z), laser_animation.timer.percent());
-		}
-	}
-	
-}
 
 pub struct Attack;
 

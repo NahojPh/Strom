@@ -5,7 +5,7 @@ impl Plugin for SpriteAnimationPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_startup_system(SpriteAnimationPlugin::setup)
-            .add_system(SpriteAnimationPlugin::animate_sprite)
+            .add_system(SpriteAnimationPlugin::animate_sprite) // This can always run so sprite animations can run anywere.
         ;
     }
 }

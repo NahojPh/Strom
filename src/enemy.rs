@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use bevy_rapier2d::prelude::*;
 use rand::Rng; 
 
+use crate::AppState;
 use crate::attack::{Attack, DeathSpriteAnimation, self};
 use crate::enemy_util::*;
 use crate::{attack::Health, player::Player};
@@ -22,8 +23,11 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app
 			.add_startup_system(EnemyPlugin::setup)
-			.add_system(EnemyPlugin::spawn_wave)
-			.add_system(EnemyPlugin::control_enemy_movement)			
+			.add_systems((
+				EnemyPlugin::spawn_wave,
+				EnemyPlugin::control_enemy_movement,
+				EnemyPlugin::end_game,
+			).in_set(OnUpdate(AppState::InGame)))
 			.insert_resource(Wave(1))
 			.insert_resource(WaveTimer(Timer::from_seconds(3.0, TimerMode::Repeating)))
 			.insert_resource(EnemyTypes(HashMap::new()))
@@ -31,6 +35,7 @@ impl Plugin for EnemyPlugin {
 		
 		;
     }
+
 }
 
 impl EnemyPlugin {
@@ -138,17 +143,21 @@ impl EnemyPlugin {
 	// When enemies go off screen (and possibily touch the player, end the game.)
 	fn end_game(
 		mut commands: Commands,
-		query: Query<(&Transform, Entity), With<Enemy>>,
+		query: Query<(&Transform, Entity)>,
 		window_query: Query<&Window, With<PrimaryWindow>>,
-		
+		mut next_state: ResMut<NextState<AppState>>,
 		
 	) {
 		for (transform, entity) in query.iter() {
 			let Ok(window) = window_query.get_single() else {
 		        return;
 		    };
-			if transform.translation.y < window.height() {
+			
+			// eprintln!("translation: {}, height: {}", transform.translation.y, window.height());
+			if transform.translation.y < (window.height() / 2.0) * -1.0 {
+				eprintln!("delted entity at {}", transform.translation.y);
 				commands.entity(entity).despawn_recursive();
+				next_state.set(AppState::GameOver);
 			}
 		}
 		
