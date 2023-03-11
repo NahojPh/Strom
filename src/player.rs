@@ -24,7 +24,7 @@ impl Plugin for PlayerPlugin {
                 PlayerPlugin::update_laser_attack_timer,
                 PlayerPlugin::render_laser_attack_timer,
             ).in_set(OnUpdate(AppState::InGame)))
-            .add_system(PlayerPlugin::clean_on_exit.in_schedule(OnExit(AppState::InGame)))
+            .add_system(PlayerPlugin::clean_on_exit_in_game.in_schedule(OnExit(AppState::InGame)))
         ;
     }
 
@@ -101,6 +101,7 @@ impl PlayerPlugin {
     
     }
 
+    // Adds and removes an icon when the laser is ready to be used.
     fn render_laser_attack_timer(
 		window_query: Query<&Window, With<PrimaryWindow>>,
         asset_server: Res<AssetServer>,
@@ -137,7 +138,8 @@ impl PlayerPlugin {
     }
     
 
-    fn clean_on_exit(
+    // Does some clean up when exiting the InGame state.
+    fn clean_on_exit_in_game(
         mut commands: Commands,
         player_query: Query<Entity, With<Player>>,
         laser_icon_query: Query<Entity, (With<LaserIcon>, Without<Player>)>,
@@ -150,6 +152,7 @@ impl PlayerPlugin {
         }
     }
 
+    // Increments the laser attack timer.
     fn update_laser_attack_timer(
         time: Res<Time>,
         mut query: Query<&mut LaserAttackTimer>,
@@ -162,7 +165,7 @@ impl PlayerPlugin {
     
     }
 
-
+    // Handles player movement and shooting.
     fn handle_keyboard_input(
         mut commands: Commands,
         input: Res<Input<KeyCode>>,
@@ -214,12 +217,10 @@ impl PlayerPlugin {
                         }
                     
                     },
-                
+                    // Key press is not one of the aformentioned ones so its tossed aside.                
                     _ => {}
                 }
             }
-            // eprintln!("Transform: {}", transform.translation.x);
-            // eprintln!("Forced! {}", velocity.linvel);
         } 
     }
 

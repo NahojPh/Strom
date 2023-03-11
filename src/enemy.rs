@@ -2,12 +2,10 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use std::collections::HashMap;
 use bevy_rapier2d::prelude::*;
-use rand::Rng; 
 
 use crate::AppState;
-use crate::attack::{Attack, DeathSpriteAnimation, self, Alive};
+use crate::attack::Alive;
 use crate::enemy_util::*;
-use crate::{attack::Health, player::Player};
 
 
 
@@ -40,8 +38,8 @@ impl Plugin for EnemyPlugin {
 }
 
 impl EnemyPlugin {
+	// Adds the different enemy types into a hashmap to easily spawn them with no boilerplate.
 	fn setup(
-		mut commands: Commands,
 		asset_server: Res<AssetServer>,
 		mut enemy_types: ResMut<EnemyTypes>,
 	) {
@@ -91,12 +89,12 @@ impl EnemyPlugin {
 		enemy: Enemy,
         ..Default::default()
     });
-		
+		// This is how one would spawn the different ones.
 		// commands.spawn(enemy_types.0.get(&EnemyType::MutantSpaceMother).unwrap().clone());
 		// commands.spawn(enemy_types.0.get(&EnemyType::OverlordNightmare).unwrap().clone());
 		// commands.spawn(enemy_types.0.get(&EnemyType::CoreDefenderScarlet).unwrap().clone());
 	}
-
+	// method name is self explanatory.
 	fn clean_on_exit_in_game(
         mut commands: Commands,
         query: Query<Entity, With<Enemy>>,
@@ -132,17 +130,13 @@ impl EnemyPlugin {
 		        return;
 		    };
 			let window_width = window.width();
-			let padding = 50.0;
 			let most_left_side = (window_width / 2.0) * -1.0;
 			let amount_of_enemies_to_spawn = (next_enemy.enemy_diff.0 as isize -5_isize).abs() as usize;
 			dbg!("{}", most_left_side);
 			
-			let mut enemy_spawn_x_translation = most_left_side;
-			
 			for amount_of_enemies in 0..amount_of_enemies_to_spawn {
 				next_enemy.transform.translation.x = most_left_side + (window_width / amount_of_enemies_to_spawn as f32) * amount_of_enemies as f32 + 50.0;
 				commands.spawn(next_enemy.clone());
-				enemy_spawn_x_translation += next_enemy.sprite_width.0;
 			}
 			
 			
@@ -186,11 +180,10 @@ impl EnemyPlugin {
 		
 	}
 	
-	// This is not very cash money
+	// Moves enemies forward.
 	fn control_enemy_movement(
 		mut query: Query<&mut Velocity, With<Enemy>>,
 		move_enemy_by: Res<MoveEnemyBy>,
-		// time: Res<Time>,
 	) {
 		for mut velocity in query.iter_mut() {
 			velocity.linvel.y = **move_enemy_by * -1.0;

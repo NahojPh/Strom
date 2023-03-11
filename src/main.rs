@@ -7,8 +7,9 @@ mod user_interface;
 
 
 use bevy_rapier2d::prelude::*;
-use bevy::{prelude::*, window::{CursorGrabMode, PresentMode, WindowResolution}};
+use bevy::{prelude::*, window::WindowResolution};
 
+// The state of the app so the game knows if you are in a game or in the main menu. Or getting roasted cuss you game-overed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, States, Default, SystemSet)]
 pub enum AppState {
     #[default]
@@ -21,6 +22,7 @@ pub enum AppState {
 
 
 fn main() {
+    // Does lots of setups and adds all the systems from the custom plugins.
     App::new()
         .add_state::<AppState>()
         .add_plugins(DefaultPlugins
@@ -57,20 +59,9 @@ fn main() {
 
 
 
-/// set up a simple 2D scene
+/// set up a simple 2D camera
 fn setup(
     mut commands: Commands,
 ) {
     commands.spawn(Camera2dBundle::default());
 }
-
-
-// IDEAS
-// -----------
-// Ett spel där man snurrar runt ett skepp och måste hitta alla "fel" 
-// som kommer upp och fixa dem genom att trycka på rätt tangentbords kanpp.
-// Att vara snabb är viktigt eftersom skeppet kommer explordera om man inte är snabb nog
-
-
-
-// Top down-turnbased spel på 3d plattform kanske med fysik i am not sure men med olika attacker.
