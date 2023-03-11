@@ -2,7 +2,15 @@ use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_rapier2d::prelude::*;
 
 
-use crate::{attack::{Attack, DeathSpriteAnimation, Health, Alive}, AppState};
+use crate::{
+    attack::{
+        Attack,
+        DeathSpriteAnimation,
+        Health,
+        Alive
+    }, 
+    AppState
+};
 
 
 pub struct PlayerPlugin;
@@ -30,16 +38,9 @@ pub struct Player {
     pub base_damage: f32,    
     pub attack_speed: f32,
     pub bullet_amount: usize,
-    pub effects: Vec<Effect>,
     pub level: usize,
 }
 
-pub enum Effect {
-    Slowness(f32), //f32 is multiplier
-    Weakness(f32), //f32 is multiplier
-    Strength(f32), //f32 is multiplier
-    
-}
 
 
 #[derive(Component, Deref, DerefMut)]
@@ -75,7 +76,6 @@ impl PlayerPlugin {
             base_damage: 500.0,
             attack_speed: 1.0,
             bullet_amount: 1,
-            effects: Vec::new(),
             level: 1,
         })
         .insert(RigidBody::Dynamic)
@@ -97,38 +97,43 @@ impl PlayerPlugin {
         .insert(LaserAttackTimer(Timer::from_seconds(1.0, TimerMode::Repeating)))
         ;
 
-        let laser_icon_texture = asset_server.load("LaserIcon.png");
 
-        commands.spawn(SpriteBundle {
-            transform: Transform::from_xyz(
-                (window.width() / 2.0) * -1.0 + 60.0, 
-                (window.height() / 2.0) * -1.0 + 60.0,
-                100.0
-            ),
-            texture: laser_icon_texture,
-            ..Default::default()
-        })
-        .insert(LaserIcon)
-        ;
     
     }
 
     fn render_laser_attack_timer(
+		window_query: Query<&Window, With<PrimaryWindow>>,
+        asset_server: Res<AssetServer>,
+        mut commands: Commands,
         laser_timer_query: Query<&LaserAttackTimer, (With<Player>, Without<LaserIcon>)>,
-        laser_icon_query: Query<&mut Visibility, (With<LaserIcon>, Without<Player>)>,
+        laser_icon_query: Query<Entity, (With<LaserIcon>, Without<Player>)>,
         time: Res<Time>,
     ) {
         for laser_attack_timer in laser_timer_query.iter() {
-            for mut visibility in laser_icon_query.iter() {
-                if laser_attack_timer.finished() {
-                    visibility = &Visibility::Visible;
-                }
-                else {
-                    visibility = &Visibility::Hidden;
+            if laser_attack_timer.finished() {
+        		let Ok(window) = window_query.get_single() else {
+        	        return;
+        	    };
+                
+                let laser_icon_texture = asset_server.load("LaserIcon.png");
+                commands.spawn(SpriteBundle {
+                    transform: Transform::from_xyz(
+                        (window.width() / 2.0) * -1.0 + 60.0, 
+                        (window.height() / 2.0) * -1.0 + 60.0,
+                        100.0
+                    ),
+                    texture: laser_icon_texture,
+                    ..Default::default()
+                })
+                .insert(LaserIcon)
+                ;
+            }
+            else {
+                for entity in laser_icon_query.iter() {
+                    commands.entity(entity).despawn_recursive();
                 }
             }
         }
-        
     }
     
 

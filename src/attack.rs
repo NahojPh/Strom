@@ -21,6 +21,7 @@ impl Plugin for AttackPlugin {
 #[derive(Component, Clone, Default)]
 pub struct Alive;
 
+// Player and enemy health
 #[derive(Component, Clone)]
 pub struct Health {
 	pub health: usize,
@@ -35,13 +36,14 @@ impl Default for Health {
     }
 }
 
+// Globals resource to get the explosion death animation.
 #[derive(Resource)]
 pub struct DeathSpriteAnimation {
 	texture_atlas_handle: Handle<TextureAtlas>,
     animation_indices: AnimationIndices,
 }
 
-
+// Information used to lerp the laser animation.
 #[derive(Component)]
 pub struct LaserAnimation {
 	timer: Timer,
@@ -49,11 +51,13 @@ pub struct LaserAnimation {
 	hit_point: Vec3,
 }
 
+// How long the game over text should be visible for.
 #[derive(Component)]
 struct GameOverText(Timer);
 
 
 impl AttackPlugin {
+	// Initalizes the death animation.
 	fn setup(
 		mut commands: Commands,
 		asset_server: Res<AssetServer>,
@@ -109,6 +113,7 @@ impl AttackPlugin {
 	
 	}
 
+	// Counting down until its time to change to main menu after game over screen.
 	fn game_over_transition(
 		mut commands: Commands,
 		mut query: Query<(&mut GameOverText, Entity)>,
@@ -129,7 +134,7 @@ impl AttackPlugin {
 	}
 	
 	
-		
+	// Moves the laser projectile by lerping
 	fn animate_laser(
 		mut commands: Commands,
 		time: Res<Time>,
@@ -150,7 +155,7 @@ impl AttackPlugin {
 	}
 }
 
-
+// Standalone function to do damage against entities with the health component (both players and enemies)
 pub fn take_damage(
 	commands: &mut Commands,
 	entity: &mut Entity,
@@ -159,7 +164,6 @@ pub fn take_damage(
 	translation: Vec3,
 	death_sprite_animation: &Res<DeathSpriteAnimation>,
 ) {
-	// dbg!("Taking damage.. or am i?");
 	if damage_taken > health.health {
 		commands.spawn(SpriteSheetBundle {
 		    sprite: TextureAtlasSprite::new(death_sprite_animation.animation_indices.first),
@@ -186,11 +190,7 @@ pub fn take_damage(
 pub struct Attack;
 
 impl Attack {
-	// Style guide name: shoot_
-	// 
-// Måste lägga till en "laser" på laser attacken så det sys
-//	tänkte 'lerpa' mellan spelaren och fienden.
-	
+	// Standalone method to shoot the ray cast.		
 	pub fn shot_laser(
 		commands: &mut Commands,
 		rapier_context: &Res<RapierContext>,
